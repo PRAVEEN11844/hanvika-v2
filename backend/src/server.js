@@ -5,99 +5,135 @@ const path = require("path");
 const fs = require("fs");
 const app = express();
 
-// ── CORS ──────────────────────────────────────────────────────────────────────
+// Combined CORS configuration:
+// - Uses a function to dynamically allow origins:
+//   - Always allows requests with no origin (mobile, curl, etc.).
+//   - Allows any localhost origin.
+//   - Allows 'https://your-production-domain.com' and 'http://localhost:5173'.
+// - Also explicitly limits the HTTP methods.
 app.use(cors({
   origin: function (origin, callback) {
+    // Allow requests with no origin (e.g., mobile apps, curl requests)
     if (!origin) return callback(null, true);
-    if (origin.startsWith('http://localhost:')) return callback(null, true);
-    const allowed = ['https://your-production-domain.com'];
-    if (allowed.includes(origin)) return callback(null, true);
+
+    // Allow all localhost origins regardless of port
+    if (origin.startsWith('http://localhost:')) {
+      return callback(null, true);
+    }
+
+    // Allowed domains
+    const allowedDomains = ['https://your-production-domain.com', 'http://localhost:5173'];
+    if (allowedDomains.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+
+    // Not allowed by CORS
     callback(new Error('Not allowed by CORS'));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   credentials: true
 }));
 
+// Parse JSON for non-file routes (Multer handles multipart/form-data)
 app.use(express.json({ limit: '10mb' }));
 
-// ── Request logger ────────────────────────────────────────────────────────────
+// Request logger middleware
 app.use((req, res, next) => {
-  const t = new Date();
-  console.log(`📥 ${req.method} ${req.originalUrl}`);
+  const startTime = new Date();
+  console.log(`📥 ${req.method} ${req.originalUrl} - ${startTime.toISOString()}`);
+
+  // Log details after the response finishes
   res.on('finish', () => {
-    console.log(`📤 ${req.method} ${req.originalUrl} → ${res.statusCode} (${new Date() - t}ms)`);
+    const duration = new Date() - startTime;
+    console.log(`📤 ${req.method} ${req.originalUrl} - ${res.statusCode} - ${duration}ms`);
   });
+
   next();
 });
 
-// ── Static files ──────────────────────────────────────────────────────────────
+// Serve static files from the uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Add a specific route for review images to ensure they're properly served
 app.get('/uploads/reviews/:filename', (req, res) => {
-  res.sendFile(path.join(__dirname, 'uploads', 'reviews', req.params.filename));
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, 'uploads', 'reviews', filename);
+  res.sendFile(filePath);
 });
+
+// Add a route to handle legacy absolute paths
 app.get('/api/image/:filename', (req, res) => {
-  res.sendFile(path.join(__dirname, 'uploads', 'reviews', req.params.filename));
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, 'uploads', 'reviews', filename);
+  res.sendFile(filePath);
 });
 
-// ── Ensure upload dirs exist ──────────────────────────────────────────────────
+// Create uploads directory if it does not exist
 const uploadsDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+const reviewsDir = path.join(uploadsDir, "reviews");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('Created uploads directory');
+}
 
-// ── Import routes ─────────────────────────────────────────────────────────────
+// Import route modules
 const authRoutes = require("./routes/auth");
 const workerAuthRoutes = require("./routes/workerAuth");
 const workerFormRoutes = require("./routes/WorkerForm");
 const adminAuthRoutes = require("./routes/adminAuth.routes");
 const adminWorkersRoutes = require("./routes/adminWorkers.routes");
+
 const reviewRoutes = require("./routes/reviews");
 const orderRoutes = require("./routes/orders");
 
-// ── Register routes ───────────────────────────────────────────────────────────
-// ⚠️  CRITICAL ORDER: specific routes BEFORE general ones
-// /api/auth/admin must be registered BEFORE /api/auth
-// otherwise Express matches /api/auth first and never reaches /api/auth/admin
 
-app.use("/api/auth/admin", adminAuthRoutes);    // ← FIRST (more specific)
-app.use("/api/auth", authRoutes);          // ← SECOND (general)
-
+// Use the routes with prefixed paths
+app.use("/api/auth", authRoutes);
+app.use("/api/auth/admin", adminAuthRoutes);
 app.use("/api/admin/workers", adminWorkersRoutes);
 app.use("/api/worker-auth", workerAuthRoutes);
 app.use("/api/worker-form", workerFormRoutes);
+
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/requests", require("./routes/serviceRequests"));
 
-// Service requests (check file exists before requiring)
-try {
-  app.use("/api/requests", require("./routes/serviceRequests"));
-} catch (e) {
-  console.warn("⚠️  serviceRequests route not found — skipping");
-}
 
-// ── Health check ──────────────────────────────────────────────────────────────
+// Health-check endpoint for quick server status
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', time: new Date().toISOString() });
+  res.status(200).json({
+    status: 'ok',
+    time: new Date().toISOString()
+  });
 });
 
-app.get('/', (req, res) => res.send('Hanvika API server is running! ✅'));
-
-// ── 404 handler ───────────────────────────────────────────────────────────────
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: `Not Found - ${req.originalUrl}` });
+// Default route for testing
+app.get('/', (req, res) => {
+  res.send('API server is running!');
 });
 
-// ── Global error handler ──────────────────────────────────────────────────────
+// 404 handler: handles routes that are not defined
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: `Not Found - ${req.originalUrl}`
+  });
+});
+
+// Global error handler for catching all errors
 app.use((err, req, res, next) => {
   console.error('Server Error:', err);
   res.status(500).json({
     success: false,
     message: err.message || 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err : undefined
   });
 });
 
-// ── Start server ──────────────────────────────────────────────────────────────
+// Start the server on PORT from environment (defaults to 5003)
 const PORT = process.env.PORT || 5003;
 app.listen(PORT, () => {
-  console.log(`✅ Server running → http://localhost:${PORT}`);
-  console.log(`🔐 Admin login  → POST http://localhost:${PORT}/api/auth/admin/login`);
-  console.log(`🔍 Health check → http://localhost:${PORT}/health`);
+  console.log(`✅ Server running on port ${PORT} - http://localhost:${PORT}`);
+  console.log(`🛠️  API Endpoints available at http://localhost:${PORT}/api`);
+  console.log(`🔍 Health check at http://localhost:${PORT}/health`);
 });
