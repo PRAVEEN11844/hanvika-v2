@@ -19,8 +19,11 @@ const serviceRequestSchema = new mongoose.Schema({
         required: true
     },
     location: {
-        type: String,
-        required: true
+        address: { type: String, required: true },
+        coordinates: {
+            lat: { type: Number, required: true },
+            lng: { type: Number, required: true }
+        }
     },
     description: {
         type: String
@@ -56,5 +59,9 @@ const serviceRequestSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = (connection) => {
-    return connection.models.ServiceRequest || connection.model("ServiceRequest", serviceRequestSchema);
+    // Drop cached model so the new schema takes effect
+    if (connection.models.ServiceRequest) {
+        delete connection.models.ServiceRequest;
+    }
+    return connection.model("ServiceRequest", serviceRequestSchema);
 };

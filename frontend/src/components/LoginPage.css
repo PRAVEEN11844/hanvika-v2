@@ -1,16 +1,16 @@
 /* LoginPage.css - Ultimate Colorful Animated Background */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700;800&display=swap');
 
 /* Main container with cosmic gradient */
 .login-container {
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  background: linear-gradient(160deg, #1A1228 0%, #0F2820 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Outfit', sans-serif;
   padding: 2rem 1rem;
   margin: 0;
   position: relative;
@@ -35,7 +35,7 @@
 .bubble:nth-child(1) {
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, #ff00ff, transparent 70%);
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.6), transparent 70%);
   top: 20%;
   left: 10%;
   animation-duration: 20s;
@@ -44,7 +44,7 @@
 .bubble:nth-child(2) {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, #00ffff, transparent 70%);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.5), transparent 70%);
   top: 60%;
   left: 70%;
   animation-duration: 25s;
@@ -54,7 +54,7 @@
 .bubble:nth-child(3) {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, #ffff00, transparent 70%);
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.4), transparent 70%);
   top: 30%;
   left: 50%;
   animation-duration: 30s;
@@ -62,15 +62,20 @@
 }
 
 @keyframes floatBubble {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0, 0);
   }
+
   25% {
     transform: translate(50px, 50px);
   }
+
   50% {
     transform: translate(100px, -50px);
   }
+
   75% {
     transform: translate(-50px, 50px);
   }
@@ -87,7 +92,7 @@
 .particle:nth-child(4) {
   width: 10px;
   height: 10px;
-  background: #ff00ff;
+  background: #7C3AED;
   top: 10%;
   left: 20%;
   animation-duration: 12s;
@@ -96,7 +101,7 @@
 .particle:nth-child(5) {
   width: 15px;
   height: 15px;
-  background: #00ffff;
+  background: #10B981;
   top: 70%;
   left: 80%;
   animation-duration: 18s;
@@ -106,7 +111,7 @@
 .particle:nth-child(6) {
   width: 8px;
   height: 8px;
-  background: #ffff00;
+  background: #F59E0B;
   top: 40%;
   left: 60%;
   animation-duration: 15s;
@@ -118,6 +123,7 @@
     transform: translate(0, 0) rotate(0deg);
     opacity: 1;
   }
+
   100% {
     transform: translate(100px, -100px) rotate(360deg);
     opacity: 0;
@@ -131,7 +137,7 @@
   left: 0;
   width: 200%;
   height: 100px;
-  background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%23ff00ff" opacity=".25"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" fill="%2300ffff" opacity=".25"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%23ffff00" opacity=".25"/></svg>');
+  background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%237C3AED" opacity=".25"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" fill="%2310B981" opacity=".25"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%23F59E0B" opacity=".25"/></svg>');
   animation: wave 10s linear infinite;
   opacity: 0.6;
   z-index: 1;
@@ -153,6 +159,7 @@
   0% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -165,11 +172,11 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: 
-    linear-gradient(rgba(255, 0, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 0, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+  background:
+    linear-gradient(rgba(124, 58, 237, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 58, 237, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
   background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px;
   animation: gridMove 20s linear infinite;
   z-index: 1;
@@ -179,6 +186,7 @@
   0% {
     background-position: 0 0, 0 0, 0 0, 0 0;
   }
+
   100% {
     background-position: 50px 50px, 50px 50px, 10px 10px, 10px 10px;
   }
@@ -204,8 +212,9 @@
   from {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
   }
+
   to {
-    text-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffff, 0 0 40px #ffff00;
+    text-shadow: 0 0 20px #7C3AED, 0 0 30px #10B981, 0 0 40px #F59E0B;
   }
 }
 
@@ -230,7 +239,7 @@
 
 .switch-label.active {
   color: #ffffff;
-  text-shadow: 0 0 10px #00ffff;
+  text-shadow: 0 0 10px #A78BFA;
 }
 
 .switch {
@@ -273,15 +282,15 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-input:checked + .slider {
-  background: linear-gradient(145deg, #ff00ff, #00ffff);
+input:checked+.slider {
+  background: linear-gradient(135deg, #5B21B6, #8B5CF6);
 }
 
-input:focus + .slider {
+input:focus+.slider {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(30px);
 }
 
@@ -302,9 +311,12 @@ input:checked + .slider:before {
 }
 
 @keyframes floatCard {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -329,7 +341,8 @@ input:checked + .slider:before {
   transform: rotateY(180deg);
 }
 
-.front, .back {
+.front,
+.back {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -359,7 +372,7 @@ input:checked + .slider:before {
   display: block;
   width: 60px;
   height: 3px;
-  background: linear-gradient(to right, #ff00ff, #00ffff);
+  background: linear-gradient(135deg, #7C3AED, #10B981);
   margin: 0.5rem auto 0;
   border-radius: 3px;
   box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
@@ -377,7 +390,7 @@ input:checked + .slider:before {
 .input-field {
   background-color: rgba(255, 255, 255, 0.1);
   border: none;
-  color: #000000;
+  color: #0F0A1E;
   border-radius: 8px;
   padding: 0.75rem 1rem;
   width: 100%;
@@ -387,14 +400,14 @@ input:checked + .slider:before {
 }
 
 .input-field::placeholder {
-  color: black;
+  color: #9CA3AF;
 }
 
 .input-field:focus {
   outline: none;
-  border-color: #00ffff;
-  box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.2);
-  background-color: rgba(0, 255, 255, 0.1);
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+  background-color: rgba(124, 58, 237, 0.1);
 }
 
 .input-focus-border {
@@ -403,17 +416,17 @@ input:checked + .slider:before {
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(to right, #ff00ff, #00ffff);
+  background: linear-gradient(135deg, #7C3AED, #10B981);
   transition: width 0.4s ease;
 }
 
-.input-field:focus ~ .input-focus-border {
+.input-field:focus~.input-focus-border {
   width: 100%;
 }
 
 .btn {
   position: relative;
-  background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
+  background: linear-gradient(135deg, #5B21B6 0%, #8B5CF6 100%);
   color: #ffffff;
   text-transform: uppercase;
   border: none;
@@ -426,12 +439,12 @@ input:checked + .slider:before {
   overflow: hidden;
   transition: all 0.3s ease;
   z-index: 1;
-  box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
 }
 
 .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 0, 255, 0.4);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
 }
 
 .btn:active {
@@ -461,8 +474,8 @@ input:checked + .slider:before {
 }
 
 .forgot-password:hover {
-  color: #00ffff;
-  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+  color: #A78BFA;
+  text-shadow: 0 0 5px rgba(167, 139, 250, 0.5);
 }
 
 /* Responsive adjustments */
@@ -472,11 +485,11 @@ input:checked + .slider:before {
     height: auto;
     min-height: 500px;
   }
-  
+
   .login-heading {
     font-size: 2rem;
   }
-  
+
   .bubble {
     display: none;
   }

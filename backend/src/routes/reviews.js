@@ -293,7 +293,7 @@ router.post("/", async (req, res) => {
       const professionalismValue = parseInt(professionalism) || 0;
 
       // Save the review data to MySQL database
-      const connection = await pool.getConnection();
+      const connection = await getPool().getConnection();
       try {
         await connection.beginTransaction();
 
@@ -423,7 +423,7 @@ router.get("/", async (req, res) => {
   try {
     console.log("[GET /] Attempting to connect to database...");
 
-    const connection = await pool.getConnection();
+    const connection = await getPool().getConnection();
     console.log("[GET /] Successfully connected to database");
 
     try {
@@ -530,7 +530,7 @@ router.get("/published", async (req, res) => {
     console.log("💡 [GET /published] Route handler triggered at " + new Date().toISOString());
     console.log("==============================================");
 
-    const connection = await pool.getConnection();
+    const connection = await getPool().getConnection();
     try {
       console.log("[GET /published] Fetching published reviews...");
 
@@ -668,7 +668,7 @@ router.get("/diagnosis", async (req, res) => {
     // Check database connection
     try {
       console.log("[GET /diagnosis] 🔄 Testing database connection...");
-      const connection = await pool.getConnection();
+      const connection = await getPool().getConnection();
       diagnosisResults.databaseConnection = true;
       diagnosisResults.actions.push('Database connection successful');
 
@@ -808,7 +808,7 @@ router.get("/diagnosis", async (req, res) => {
       });
     } finally {
       if (diagnosisResults.databaseConnection) {
-        const connection = await pool.getConnection();
+        const connection = await getPool().getConnection();
         connection.release();
         diagnosisResults.actions.push('Database connection released');
       }
@@ -854,7 +854,7 @@ router.get("/:id", async (req, res, next) => {
       });
     }
 
-    const connection = await pool.getConnection();
+    const connection = await getPool().getConnection();
 
     try {
       // Get review details with better error logging

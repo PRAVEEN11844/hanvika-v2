@@ -2,6 +2,28 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../AuthContext';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+
+// Fix default marker icon
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
+
+// Helper: extract location display values from both old string and new object format
+const getLocationInfo = (location) => {
+    if (!location) return { address: 'N/A', coords: null };
+    if (typeof location === 'string') return { address: location, coords: null };
+    return {
+        address: location.address || 'N/A',
+        coords: location.coordinates && location.coordinates.lat && location.coordinates.lng
+            ? [location.coordinates.lat, location.coordinates.lng]
+            : null
+    };
+};
 
 const CustomerDashboard = () => {
     const { authToken } = useContext(AuthContext);
@@ -27,98 +49,126 @@ const CustomerDashboard = () => {
     };
 
     useEffect(() => {
-        if (authToken) {
-            fetchRequests();
-        }
+        if (authToken) fetchRequests();
     }, [authToken]);
 
     const getStatusBadge = (status) => {
-        const styles = {
-            'pending': 'bg-yellow-100 text-yellow-800',
-            'assigned': 'bg-blue-100 text-blue-800',
-            'in-progress': 'bg-purple-100 text-purple-800',
-            'completed': 'bg-green-100 text-green-800',
-            'cancelled': 'bg-red-100 text-red-800'
+        const colors = {
+            'pending': { bg: '#fef3c7', text: '#92400e' },
+            'assigned': { bg: '#dbeafe', text: '#1e40af' },
+            'in-progress': { bg: '#ede9fe', text: '#5b21b6' },
+            'completed': { bg: '#d1fae5', text: '#065f46' },
+            'cancelled': { bg: '#fee2e2', text: '#991b1b' }
         };
-        const defaultStyle = 'bg-gray-100 text-gray-800';
+        const c = colors[status] || { bg: '#f3f4f6', text: '#374151' };
         return (
-            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${styles[status] || defaultStyle}`}>
+            <span style={{
+                padding: '4px 10px', borderRadius: 20, fontSize: '0.75rem',
+                fontWeight: 600, background: c.bg, color: c.text
+            }}>
                 {status.replace('-', ' ').toUpperCase()}
             </span>
         );
     };
 
+    const serviceLabels = {
+        acRepair: 'AC Repair', mechanicRepair: 'Mechanic Repair',
+        electricalRepair: 'Electrical Repair', electronicRepair: 'Electronics Repair',
+        plumber: 'Plumbing', packersMovers: 'Packers & Movers'
+    };
+
     if (loading) {
-        return <div className="p-8 text-center text-gray-500">Loading your requests...</div>;
+        return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>Loading your requests...</div>;
     }
 
     return (
-        <div className="container mx-auto p-4 max-w-6xl">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Customer Dashboard</h2>
-                <Link to="/customer/request" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <div style={{ maxWidth: 900, margin: '2rem auto', padding: '0 1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>📋 My Service Requests</h2>
+                <Link
+                    to="/create-request"
+                    style={{
+                        padding: '10px 18px', borderRadius: 8, background: '#2563eb', color: '#fff',
+                        fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem'
+                    }}
+                >
                     + New Request
                 </Link>
             </div>
 
             {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#dc2626', padding: '12px 16px', borderRadius: 8, marginBottom: 16 }}>
                     {error}
                 </div>
             )}
 
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div className="px-4 py-5 sm:px-6">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">Your Service Requests</h3>
+            {requests.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 40, background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', color: '#94a3b8' }}>
+                    <p style={{ fontSize: '1.1rem' }}>No service requests yet.</p>
+                    <Link to="/create-request" style={{ color: '#2563eb' }}>Create your first request →</Link>
                 </div>
-                {requests.length === 0 ? (
-                    <div className="p-6 text-center text-gray-500 border-t border-gray-200">
-                        You have no service requests yet.
-                    </div>
-                ) : (
-                    <div className="border-t border-gray-200">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Details</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Provider</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timing</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {requests.map((req) => (
-                                    <tr key={req._id}>
-                                        <td className="px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-900">{req.serviceType}</div>
-                                            <div className="text-sm text-gray-500">{req.location}</div>
-                                            <div className="text-xs text-gray-400 mt-1">Pref: {new Date(req.preferredDate).toLocaleDateString()}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+            ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {requests.map((req) => {
+                        const locInfo = getLocationInfo(req.location);
+                        return (
+                            <div key={req._id} style={{
+                                background: '#fff', borderRadius: 12,
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden'
+                            }}>
+                                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                                    {/* Map panel */}
+                                    {locInfo.coords && (
+                                        <div style={{ width: 220, minHeight: 180, flexShrink: 0 }}>
+                                            <MapContainer
+                                                center={locInfo.coords}
+                                                zoom={14}
+                                                style={{ height: '100%', width: '100%' }}
+                                                scrollWheelZoom={false}
+                                                dragging={false}
+                                                zoomControl={false}
+                                            >
+                                                <TileLayer
+                                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                />
+                                                <Marker position={locInfo.coords}>
+                                                    <Popup>{locInfo.address}</Popup>
+                                                </Marker>
+                                            </MapContainer>
+                                        </div>
+                                    )}
+
+                                    {/* Details panel */}
+                                    <div style={{ flex: 1, padding: 20, minWidth: 200 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                                            <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#1e293b' }}>
+                                                {serviceLabels[req.serviceType] || req.serviceType}
+                                            </span>
                                             {getStatusBadge(req.status)}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {req.assignedWorker ? (
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-900">{req.assignedWorker.username}</div>
-                                                    <div className="text-sm text-gray-500">{req.assignedWorker.phone}</div>
-                                                </div>
-                                            ) : (
-                                                <span className="text-sm text-gray-400">Not assigned yet</span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {req.checkInTime && <div className="text-green-600">In: {new Date(req.checkInTime).toLocaleTimeString()}</div>}
-                                            {req.checkOutTime && <div className="text-blue-600">Out: {new Date(req.checkOutTime).toLocaleTimeString()}</div>}
-                                            {!req.checkInTime && !req.checkOutTime && <span>-</span>}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
+                                        </div>
+                                        <div style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                                            <div>📍 {locInfo.address}</div>
+                                            <div>📅 Preferred: {new Date(req.preferredDate).toLocaleDateString()}</div>
+                                            {req.description && <div>📝 {req.description}</div>}
+                                        </div>
+                                        {req.assignedWorker && (
+                                            <div style={{ marginTop: 10, padding: '8px 12px', background: '#f0fdf4', borderRadius: 8, fontSize: '0.85rem' }}>
+                                                <strong>Assigned:</strong> {req.assignedWorker.username} — 📞 {req.assignedWorker.phone}
+                                            </div>
+                                        )}
+                                        {(req.checkInTime || req.checkOutTime) && (
+                                            <div style={{ marginTop: 8, fontSize: '0.8rem', color: '#64748b' }}>
+                                                {req.checkInTime && <span style={{ color: '#10b981' }}>In: {new Date(req.checkInTime).toLocaleTimeString()} </span>}
+                                                {req.checkOutTime && <span style={{ color: '#3b82f6' }}>Out: {new Date(req.checkOutTime).toLocaleTimeString()}</span>}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 };

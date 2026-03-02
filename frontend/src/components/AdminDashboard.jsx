@@ -26,6 +26,10 @@ function Badge({ status }) {
     pending: { bg: "#f59e0b22", text: "#f59e0b" },
     approved: { bg: "#10b98122", text: "#10b981" },
     rejected: { bg: "#ef444422", text: "#ef4444" },
+    assigned: { bg: "#3b82f622", text: "#3b82f6" },
+    "in-progress": { bg: "#8b5cf622", text: "#8b5cf6" },
+    completed: { bg: "#10b98122", text: "#10b981" },
+    cancelled: { bg: "#ef444422", text: "#ef4444" },
     Active: { bg: "#10b98122", text: "#10b981" },
     Pending: { bg: "#f59e0b22", text: "#f59e0b" },
   };
@@ -286,23 +290,54 @@ function Workers({ token, showToast }) {
   );
 }
 
-// ── Dispatch Requests View ───────────────────────────────────────────────────
+// ── Live Duration Display ────────────────────────────────────────────────────
+function LiveDuration({ since }) {
+  const [elapsed, setElapsed] = useState("");
+  useEffect(() => {
+    const calc = () => {
+      const ms = Date.now() - new Date(since).getTime();
+      const hrs = Math.floor(ms / 3600000);
+      const mins = Math.floor((ms % 3600000) / 60000);
+      setElapsed(hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`);
+    };
+    calc();
+    const id = setInterval(calc, 30000);
+    return () => clearInterval(id);
+  }, [since]);
+  return <span style={{ fontWeight: 700, color: "#10b981", fontSize: 13 }}>⏱ {elapsed}</span>;
+}
+
+function formatDuration(start, end) {
+  if (!start || !end) return "—";
+  const ms = new Date(end).getTime() - new Date(start).getTime();
+  const hrs = Math.floor(ms / 3600000);
+  const mins = Math.floor((ms % 3600000) / 60000);
+  return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+}
+
+// ── Dispatch Requests — Workflow Dashboard ───────────────────────────────────
 function DispatchRequests({ token, showToast }) {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [assignModal, setAssignModal] = useState(null); // request object
+  const [assignModal, setAssignModal] = useState(null);
   const [availableWorkers, setAvailableWorkers] = useState([]);
   const [selectedWorkerId, setSelectedWorkerId] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
   const headers = { Authorization: `Bearer ${token}` };
 
+  const getLocDisplay = (loc) => {
+    if (!loc) return "N/A";
+    if (typeof loc === "string") return loc;
+    return loc.address || "N/A";
+  };
+
   const fetchRequests = useCallback(async () => {
-    setLoading(true);
     try {
       const res = await axios.get(`${API}/api/requests/admin`, { headers });
-      setRequests(res.data.data);
+      setRequests(res.data.data || []);
     } catch (err) {
+      console.error("Dispatch fetch error:", err);
       showToast("Failed to load requests.", "error");
     } finally {
       setLoading(false);
@@ -311,17 +346,24 @@ function DispatchRequests({ token, showToast }) {
 
   useEffect(() => { fetchRequests(); }, [fetchRequests]);
 
+  // Auto-refresh every 15 seconds
+  useEffect(() => {
+    const id = setInterval(fetchRequests, 15000);
+    return () => clearInterval(id);
+  }, [fetchRequests]);
+
+  // Filter into 3 categories
+  const futureWorks = requests.filter(r => r.status === "pending" || r.status === "assigned");
+  const currentWorks = requests.filter(r => r.status === "in-progress");
+  const completedWorks = requests.filter(r => r.status === "completed");
+
   const openAssignModal = async (reqObj) => {
     setAssignModal(reqObj);
     setSelectedWorkerId("");
     try {
-      // Fetch all approved workers to find available ones for this service
       const res = await axios.get(`${API}/api/admin/workers?status=approved`, { headers });
       const workers = res.data.workers.filter(w => {
-        const isAvailable = w.availability === "available";
-        // Strictly check if the requested serviceType is in the services array
-        const matchesService = w.services && w.services.includes(reqObj.serviceType);
-        return isAvailable && matchesService;
+        return w.availability === "available" && w.services && w.services.includes(reqObj.serviceType);
       });
       setAvailableWorkers(workers);
     } catch {
@@ -344,101 +386,185 @@ function DispatchRequests({ token, showToast }) {
     }
   };
 
+  // ── Column styles ──
+  const colStyle = {
+    flex: 1, minWidth: 280, display: "flex", flexDirection: "column", gap: 0,
+  };
+  const colHeaderStyle = (color) => ({
+    padding: "14px 18px", borderRadius: "12px 12px 0 0",
+    background: color, color: "#fff", fontWeight: 700, fontSize: 14,
+    display: "flex", justifyContent: "space-between", alignItems: "center",
+  });
+  const colBodyStyle = {
+    background: "#fff", borderRadius: "0 0 12px 12px",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.06)", padding: 12,
+    display: "flex", flexDirection: "column", gap: 10,
+    maxHeight: "60vh", overflowY: "auto", minHeight: 120,
+  };
+  const cardStyle = {
+    background: "#f8fafc", borderRadius: 10, padding: "14px 16px",
+    border: "1px solid #e5e7eb", fontSize: 13,
+  };
+  const labelStyle = { color: "#6b7280", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 };
+  const valueStyle = { color: "#1a2340", fontWeight: 600, marginTop: 2 };
+
+  if (loading) {
+    return <div style={{ textAlign: "center", padding: 60, color: "#9ca3af" }}>Loading workflow...</div>;
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Assign Modal */}
       {assignModal && (
-        <div style={{
-          position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
-          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000,
-        }}>
-          <div style={{
-            background: "#fff", borderRadius: 16, padding: 32, width: 400,
-            boxShadow: "0 24px 60px rgba(0,0,0,0.3)",
-          }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 32, width: 400, boxShadow: "0 24px 60px rgba(0,0,0,0.3)" }}>
             <h3 style={{ margin: "0 0 8px", color: "#1a2340" }}>Assign Worker</h3>
             <p style={{ color: "#6b7280", fontSize: 14, margin: "0 0 16px" }}>
               Assign a {formatServiceType(assignModal.serviceType)} worker for <strong>{assignModal.customer?.username || "Customer"}</strong>.
             </p>
-
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Select Available Worker</label>
-              <select
-                value={selectedWorkerId}
-                onChange={e => setSelectedWorkerId(e.target.value)}
-                style={{ width: "100%", padding: "10px", borderRadius: 8, border: "1px solid #e5e7eb" }}
-              >
+              <select value={selectedWorkerId} onChange={e => setSelectedWorkerId(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: 8, border: "1px solid #e5e7eb" }}>
                 <option value="">-- Choose a worker --</option>
-                {availableWorkers.map(w => (
-                  <option key={w._id} value={w._id}>{w.username} ({w.phone})</option>
-                ))}
+                {availableWorkers.map(w => (<option key={w._id} value={w._id}>{w.username} ({w.phone})</option>))}
               </select>
               {availableWorkers.length === 0 && <p style={{ color: "#ef4444", fontSize: 12, marginTop: 4 }}>No available workers for this service type right now.</p>}
             </div>
-
-            <div style={{ display: "flex", gap: 10, marginTop: 16, justifyContent: "flex-end" }}>
-              <button onClick={() => setAssignModal(null)} disabled={actionLoading} style={{
-                padding: "10px 20px", borderRadius: 8, border: "1px solid #e5e7eb",
-                background: "#f9fafb", cursor: "pointer", fontWeight: 600,
-              }}>Cancel</button>
-              <button onClick={confirmAssignment} disabled={!selectedWorkerId || actionLoading} style={{
-                padding: "10px 20px", borderRadius: 8, border: "none",
-                background: (!selectedWorkerId || actionLoading) ? "#9ca3af" : "#10b981", color: "#fff", cursor: (!selectedWorkerId || actionLoading) ? "not-allowed" : "pointer", fontWeight: 700,
-              }}>{actionLoading ? "Assigning..." : "Confirm Assign"}</button>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button onClick={() => setAssignModal(null)} disabled={actionLoading} style={{ padding: "10px 20px", borderRadius: 8, border: "1px solid #e5e7eb", background: "#f9fafb", cursor: "pointer", fontWeight: 600 }}>Cancel</button>
+              <button onClick={confirmAssignment} disabled={!selectedWorkerId || actionLoading} style={{ padding: "10px 20px", borderRadius: 8, border: "none", background: (!selectedWorkerId || actionLoading) ? "#9ca3af" : "#10b981", color: "#fff", cursor: (!selectedWorkerId || actionLoading) ? "not-allowed" : "pointer", fontWeight: 700 }}>{actionLoading ? "Assigning..." : "Confirm Assign"}</button>
             </div>
           </div>
         </div>
       )}
 
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h2 style={{ fontSize: 18, color: "#1a2340", margin: 0 }}>Service Requests Pipeline</h2>
-        <button onClick={fetchRequests} style={{
-          padding: "8px 16px", borderRadius: 20,
-          border: "1px solid #e5e7eb", background: "#fff", cursor: "pointer", fontSize: 13,
-        }}>🔄 Refresh</button>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <h2 style={{ fontSize: 20, color: "#1a2340", margin: 0, fontWeight: 800 }}>Operations Workflow</h2>
+          <p style={{ margin: "4px 0 0", fontSize: 12, color: "#9ca3af" }}>Auto-refreshes every 15s • {requests.length} total requests</p>
+        </div>
+        <button onClick={fetchRequests} style={{ padding: "8px 18px", borderRadius: 20, border: "1px solid #e5e7eb", background: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>🔄 Refresh</button>
       </div>
 
-      <div style={{ background: "#fff", borderRadius: 16, padding: 28, boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflowX: "auto" }}>
-        {loading ? (
-          <div style={{ textAlign: "center", padding: 40, color: "#9ca3af" }}>Loading requests...</div>
-        ) : requests.length === 0 ? (
-          <div style={{ textAlign: "center", padding: 40, color: "#9ca3af" }}>No active dispatch requests.</div>
-        ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-            <thead>
-              <tr style={{ background: "#f8fafc" }}>
-                <th style={{ padding: "12px", textAlign: "left", color: "#374151" }}>Customer</th>
-                <th style={{ padding: "12px", textAlign: "left", color: "#374151" }}>Service</th>
-                <th style={{ padding: "12px", textAlign: "left", color: "#374151" }}>Location</th>
-                <th style={{ padding: "12px", textAlign: "left", color: "#374151" }}>Status</th>
-                <th style={{ padding: "12px", textAlign: "left", color: "#374151" }}>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {requests.map((r, i) => (
-                <tr key={r._id} style={{ borderBottom: "1px solid #f3f4f6", background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
-                  <td style={{ padding: "12px" }}>{r.customer?.username}<br /><span style={{ fontSize: 11, color: "#6b7280" }}>{r.customer?.phone}</span></td>
-                  <td style={{ padding: "12px", fontWeight: "bold" }}>{formatServiceType(r.serviceType)}</td>
-                  <td style={{ padding: "12px" }}>{r.location}<br /><span style={{ fontSize: 11, color: "#6b7280" }}>Pref: {new Date(r.preferredDate).toLocaleDateString()}</span></td>
-                  <td style={{ padding: "12px" }}><Badge status={r.status} /></td>
-                  <td style={{ padding: "12px" }}>
-                    {r.status === "pending" ? (
-                      <button onClick={() => openAssignModal(r)} style={{
-                        background: "#0d7377", color: "#fff", border: "none",
-                        borderRadius: 6, padding: "6px 14px", fontWeight: 700,
-                        fontSize: 12, cursor: "pointer",
-                      }}>Assign Worker</button>
-                    ) : (
-                      <span style={{ fontSize: 13, color: "#6b7280" }}>
-                        Assigned: <strong>{r.assignedWorker?.username}</strong>
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      {/* Summary Stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
+        <StatCard label="Future" value={futureWorks.length} accent="#3b82f6" />
+        <StatCard label="In Progress" value={currentWorks.length} accent="#10b981" />
+        <StatCard label="Completed" value={completedWorks.length} accent="#6b7280" />
+      </div>
+
+      {/* 3-Column Workflow */}
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+
+        {/* ── FUTURE WORKS ── */}
+        <div style={colStyle}>
+          <div style={colHeaderStyle("#3b82f6")}>
+            <span>🔵 Future Works</span>
+            <span style={{ background: "#fff3", borderRadius: 12, padding: "2px 10px", fontSize: 12 }}>{futureWorks.length}</span>
+          </div>
+          <div style={colBodyStyle}>
+            {futureWorks.length === 0 ? (
+              <div style={{ textAlign: "center", padding: 24, color: "#9ca3af", fontSize: 13 }}>No pending work</div>
+            ) : futureWorks.map(r => (
+              <div key={r._id} style={cardStyle}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span style={{ fontWeight: 700, color: "#1a2340" }}>{r.customer?.username || "Customer"}</span>
+                  <Badge status={r.status} />
+                </div>
+                <div style={labelStyle}>Service</div>
+                <div style={valueStyle}>{formatServiceType(r.serviceType)}</div>
+                <div style={{ ...labelStyle, marginTop: 8 }}>Address</div>
+                <div style={{ ...valueStyle, fontWeight: 400 }}>{getLocDisplay(r.location)}</div>
+                <div style={{ ...labelStyle, marginTop: 8 }}>Preferred Date</div>
+                <div style={{ ...valueStyle, fontWeight: 400, fontSize: 12 }}>{new Date(r.preferredDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</div>
+                {r.assignedWorker && (
+                  <div style={{ marginTop: 8, padding: "6px 10px", background: "#dbeafe", borderRadius: 6, fontSize: 12 }}>
+                    👷 <strong>{r.assignedWorker.username}</strong> — {r.assignedWorker.phone}
+                  </div>
+                )}
+                {r.status === "pending" && (
+                  <button onClick={() => openAssignModal(r)} style={{
+                    marginTop: 10, width: "100%", padding: "8px", borderRadius: 8, border: "none",
+                    background: "#0d7377", color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer",
+                  }}>Assign Worker</button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── CURRENT WORKS ── */}
+        <div style={colStyle}>
+          <div style={colHeaderStyle("#10b981")}>
+            <span>🟢 Current Works</span>
+            <span style={{ background: "#fff3", borderRadius: 12, padding: "2px 10px", fontSize: 12 }}>{currentWorks.length}</span>
+          </div>
+          <div style={colBodyStyle}>
+            {currentWorks.length === 0 ? (
+              <div style={{ textAlign: "center", padding: 24, color: "#9ca3af", fontSize: 13 }}>No work in progress</div>
+            ) : currentWorks.map(r => (
+              <div key={r._id} style={{ ...cardStyle, borderLeft: "3px solid #10b981" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span style={{ fontWeight: 700, color: "#1a2340" }}>{r.customer?.username || "Customer"}</span>
+                  <Badge status={r.status} />
+                </div>
+                <div style={labelStyle}>Service</div>
+                <div style={valueStyle}>{formatServiceType(r.serviceType)}</div>
+                <div style={{ ...labelStyle, marginTop: 8 }}>Worker</div>
+                <div style={valueStyle}>{r.assignedWorker?.username || "—"}</div>
+                <div style={{ ...labelStyle, marginTop: 8 }}>Address</div>
+                <div style={{ ...valueStyle, fontWeight: 400 }}>{getLocDisplay(r.location)}</div>
+                {r.checkInTime && (
+                  <>
+                    <div style={{ ...labelStyle, marginTop: 8 }}>Check-In</div>
+                    <div style={{ ...valueStyle, fontWeight: 400, fontSize: 12 }}>{new Date(r.checkInTime).toLocaleTimeString("en-IN")}</div>
+                    <div style={{ ...labelStyle, marginTop: 8 }}>Live Duration</div>
+                    <LiveDuration since={r.checkInTime} />
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── COMPLETED WORKS ── */}
+        <div style={colStyle}>
+          <div style={colHeaderStyle("#374151")}>
+            <span>✅ Completed</span>
+            <span style={{ background: "#fff3", borderRadius: 12, padding: "2px 10px", fontSize: 12 }}>{completedWorks.length}</span>
+          </div>
+          <div style={colBodyStyle}>
+            {completedWorks.length === 0 ? (
+              <div style={{ textAlign: "center", padding: 24, color: "#9ca3af", fontSize: 13 }}>No completed work yet</div>
+            ) : completedWorks.map(r => (
+              <div key={r._id} style={{ ...cardStyle, borderLeft: "3px solid #6b7280", opacity: 0.85 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span style={{ fontWeight: 700, color: "#1a2340" }}>{r.customer?.username || "Customer"}</span>
+                  <Badge status={r.status} />
+                </div>
+                <div style={labelStyle}>Service</div>
+                <div style={valueStyle}>{formatServiceType(r.serviceType)}</div>
+                <div style={{ ...labelStyle, marginTop: 8 }}>Worker</div>
+                <div style={valueStyle}>{r.assignedWorker?.username || "—"}</div>
+                {r.checkInTime && (
+                  <>
+                    <div style={{ ...labelStyle, marginTop: 8 }}>Check-In</div>
+                    <div style={{ ...valueStyle, fontWeight: 400, fontSize: 12 }}>{new Date(r.checkInTime).toLocaleTimeString("en-IN")}</div>
+                  </>
+                )}
+                {r.checkOutTime && (
+                  <>
+                    <div style={{ ...labelStyle, marginTop: 8 }}>Check-Out</div>
+                    <div style={{ ...valueStyle, fontWeight: 400, fontSize: 12 }}>{new Date(r.checkOutTime).toLocaleTimeString("en-IN")}</div>
+                  </>
+                )}
+                <div style={{ ...labelStyle, marginTop: 8 }}>Total Duration</div>
+                <div style={{ fontWeight: 700, color: "#065f46", fontSize: 13 }}>🕐 {formatDuration(r.checkInTime, r.checkOutTime)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,38 +1,55 @@
 /* ------------------------- */
 /* Global & Base Styles */
 /* ------------------------- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700;800&display=swap');
 
 :root {
-  --primary: #4F46E5;
-  --primary-dark: #3730A3;
-  --secondary: #14B8A6;
+  --primary: #7C3AED;
+  --primary-dark: #5B21B6;
+  --primary-light: #8B5CF6;
+  --primary-muted: #A78BFA;
+  --primary-100: #EDE9FE;
+  --primary-50: #F5F3FF;
+  --secondary: #10B981;
+  --secondary-dark: #059669;
+  --secondary-light: #34D399;
+  --secondary-50: #ECFDF5;
   --accent: #F59E0B;
-  --dark: #111827;
+  --dark: #0F0A1E;
   --light: #ffffff;
-  --gray: #F9FAFB;
-  --gray-100: #F3F4F6;
-  --gray-200: #E5E7EB;
+  --gray: #F8F9FF;
+  --gray-100: #F0F2FF;
+  --gray-200: #E2E0F0;
   --gray-300: #D1D5DB;
   --gray-400: #9CA3AF;
   --gray-500: #6B7280;
   --gray-600: #4B5563;
   --gray-700: #374151;
-  --gray-800: #1F2937;
-  --gray-900: #111827;
+  --gray-800: #0F0A1E;
+  --gray-900: #0F0A1E;
   --danger: #EF4444;
   --success: #10B981;
   --warning: #F59E0B;
-  --info: #3B82F6;
+  --info: #8B5CF6;
+  --sidebar-bg: #1A1228;
+  --gradient-aurora: linear-gradient(135deg, #7C3AED 0%, #10B981 100%);
+  --gradient-violet: linear-gradient(135deg, #5B21B6 0%, #8B5CF6 100%);
+  --gradient-emerald: linear-gradient(135deg, #059669 0%, #34D399 100%);
+  --gradient-gold: linear-gradient(135deg, #D97706 0%, #FCD34D 100%);
+  --gradient-navbar: linear-gradient(90deg, #1A1228 0%, #0F2820 100%);
   --transition-slow: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   --transition-normal: 0.3s ease;
   --transition-fast: 0.2s ease;
-  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
-  --border-radius-sm: 6px;
+  --shadow-sm: 0 2px 8px rgba(99, 60, 180, 0.08);
+  --shadow-md: 0 4px 20px rgba(99, 60, 180, 0.10);
+  --shadow-lg: 0 8px 40px rgba(99, 60, 180, 0.13);
+  --shadow-card: 0 1px 4px rgba(99, 60, 180, 0.07), 0 4px 16px rgba(99, 60, 180, 0.06);
+  --border-radius-sm: 8px;
   --border-radius-md: 12px;
   --border-radius-lg: 16px;
+  --border-radius-xl: 24px;
+  --font-body: 'Outfit', sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Outfit', sans-serif;
 }
 
 * {
@@ -43,8 +60,8 @@
 
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
-  background-color: var(--gray-100);
+  font-family: var(--font-body);
+  background-color: var(--gray);
   color: var(--gray-800);
   line-height: 1.6;
   transition: background-color var(--transition-normal);
@@ -65,8 +82,7 @@ a {
 
 button {
   cursor: pointer;
-  font-family: 'Inter',
-    sans-serif;
+  font-family: var(--font-body);
   border-radius: 12px;
   padding: 10px 18px;
   transition: 0.3s ease;
@@ -82,17 +98,17 @@ button:hover {
 /* ------------------------- */
 .navbar {
   width: 100%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: var(--gradient-navbar);
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), var(--shadow-md);
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .navbar.scrolled {
-  background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  background: var(--gradient-navbar);
+  box-shadow: 0 4px 20px rgba(99, 60, 180, 0.15);
 }
 
 .navbar-container {
@@ -159,7 +175,7 @@ button:hover {
 }
 
 .navbar-menu .nav-item:hover {
-  color: #12dc52;
+  color: var(--secondary-light);
 }
 
 .navbar-menu .nav-item:hover::after {
@@ -208,7 +224,7 @@ button:hover {
     position: absolute;
     top: 70px;
     right: 0;
-    background: #001f3f;
+    background: var(--sidebar-bg);
     flex-direction: column;
     width: 100%;
     max-height: 0;
@@ -287,7 +303,7 @@ button:hover {
   align-items: center;
   justify-content: center;
   min-height: calc(100vh - 70px);
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: var(--gradient-violet);
   animation: gradientBG 15s ease infinite;
   background-size: 400% 400%;
 }
@@ -354,7 +370,7 @@ button:hover {
 
 .login-card input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(77, 105, 250, 0.2);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
   outline: none;
 }
 
@@ -374,12 +390,12 @@ button:hover {
 .login-card button[type="submit"]:hover {
   background: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(77, 105, 250, 0.3);
+  box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3);
 }
 
 .login-card button[type="submit"]:active {
   transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(77, 105, 250, 0.3);
+  box-shadow: 0 2px 4px rgba(124, 58, 237, 0.3);
 }
 
 .login-tabs {
@@ -708,7 +724,7 @@ button:hover {
   align-items: center;
   justify-content: center;
   font-size: 28px;
-  background: linear-gradient(135deg, #4F46E5, #14B8A6);
+  background: var(--gradient-aurora);
   color: white;
   margin-bottom: 16px;
   transition: transform 0.3s ease;
@@ -716,7 +732,7 @@ button:hover {
 
 .premium-worker-card:hover .icon-wrapper {
   transform: scale(1.1);
-  box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
 }
 
 .premium-worker-card .category-title {
@@ -750,7 +766,7 @@ button:hover {
   margin-top: auto;
   padding: 8px 14px;
   border-radius: 8px;
-  background: #4F46E5;
+  background: var(--primary);
   color: white;
   font-size: 14px;
   font-weight: 500;
@@ -762,7 +778,7 @@ button:hover {
 }
 
 .premium-worker-card:hover .explore-btn {
-  background: #3730A3;
+  background: var(--primary-dark);
 }
 
 /* Responsive Adjustments for Grid */

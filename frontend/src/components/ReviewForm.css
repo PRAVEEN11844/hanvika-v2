@@ -11,11 +11,12 @@
 }
 
 @keyframes fadeIn {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px);
   }
-  to { 
+
+  to {
     opacity: 1;
     transform: translateY(0);
   }
@@ -36,7 +37,7 @@
   position: absolute;
   width: 60px;
   height: 3px;
-  background: linear-gradient(90deg, #4a90e2, #67b8ff);
+  background: linear-gradient(90deg, #7C3AED, #A78BFA);
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
@@ -55,7 +56,7 @@
   padding: 24px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   transition: all 0.3s ease;
-  border-left: 3px solid #4a90e2;
+  border-left: 3px solid #7C3AED;
   animation: slideIn 0.5s ease-out;
   animation-fill-mode: backwards;
 }
@@ -65,15 +66,24 @@
   transform: translateY(-2px);
 }
 
-.form-section:nth-child(1) { animation-delay: 0.1s; }
-.form-section:nth-child(2) { animation-delay: 0.2s; }
-.form-section:nth-child(3) { animation-delay: 0.3s; }
+.form-section:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.form-section:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.form-section:nth-child(3) {
+  animation-delay: 0.3s;
+}
 
 @keyframes slideIn {
   from {
     opacity: 0;
     transform: translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -94,7 +104,7 @@
   display: inline-block;
   width: 8px;
   height: 8px;
-  background-color: #4a90e2;
+  background-color: #7C3AED;
   margin-right: 10px;
   border-radius: 50%;
 }
@@ -136,7 +146,7 @@
 }
 
 .form-group:focus-within label {
-  color: #4a90e2;
+  color: #7C3AED;
 }
 
 .form-group input,
@@ -155,8 +165,8 @@
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+  border-color: #7C3AED;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
   outline: none;
 }
 
@@ -235,9 +245,17 @@
 }
 
 @keyframes starPulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1.1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.3);
+  }
+
+  100% {
+    transform: scale(1.1);
+  }
 }
 
 .rating-text {
@@ -289,7 +307,7 @@
 }
 
 .submit-btn {
-  background: linear-gradient(45deg, #4a90e2, #67b8ff);
+  background: linear-gradient(45deg, #5B21B6, #8B5CF6);
   color: white;
   border: none;
   border-radius: 30px;
@@ -298,7 +316,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
   position: relative;
   overflow: hidden;
 }
@@ -316,7 +334,7 @@
 
 .submit-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4);
+  box-shadow: 0 6px 15px rgba(124, 58, 237, 0.4);
 }
 
 .submit-btn:hover::before {
@@ -345,10 +363,27 @@
 }
 
 @keyframes shake {
-  10%, 90% { transform: translateX(-1px); }
-  20%, 80% { transform: translateX(2px); }
-  30%, 50%, 70% { transform: translateX(-3px); }
-  40%, 60% { transform: translateX(3px); }
+
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translateX(-3px);
+  }
+
+  40%,
+  60% {
+    transform: translateX(3px);
+  }
 }
 
 /* Success Message Styling */
@@ -367,11 +402,12 @@
 }
 
 @keyframes slideDown {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(-20px);
   }
-  to { 
+
+  to {
     opacity: 1;
     transform: translateY(0);
   }
@@ -396,17 +432,17 @@
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .ratings-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .review-form-container {
     padding: 20px;
     margin: 20px 10px;
   }
-  
+
   .submit-btn {
     width: 100%;
   }
-} 
+}

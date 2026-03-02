@@ -128,6 +128,9 @@ function App() {
                 }
               />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/orders" element={<Navigate to="/customer/dashboard" />} />
+              <Route path="/saved" element={<Navigate to="/" />} />
+              <Route path="/settings" element={<Navigate to="/" />} />
             </Routes>
             <Footer />
             <Chatbox />

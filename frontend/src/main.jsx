@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./AuthContext";
 import App from "./App";
 import "./App.css"; // or global styles
+import "leaflet/dist/leaflet.css";
 
 import setupLocatorUI from "@locator/runtime";
 

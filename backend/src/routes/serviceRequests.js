@@ -10,14 +10,28 @@ const Worker = require("../models/Worker")(conn);
 const { verifyToken, authorizeRoles } = require("../middleware/authMiddleware");
 
 // ── POST /api/requests (Create Request) ──────────────────────────────────────
-router.post("/", verifyToken, authorizeRoles("USER"), async (req, res) => {
+router.post("/", verifyToken, authorizeRoles("USER", "WORKER", "ADMIN"), async (req, res) => {
     try {
         const { serviceType, location, description, preferredDate } = req.body;
+
+        // Validate location object
+        if (!location || !location.address) {
+            return res.status(400).json({ error: "Location address is required." });
+        }
+        if (!location.coordinates || typeof location.coordinates.lat !== 'number' || typeof location.coordinates.lng !== 'number') {
+            return res.status(400).json({ error: "Location coordinates (lat, lng) are required." });
+        }
 
         const newRequest = new ServiceRequest({
             customer: req.user.id,
             serviceType,
-            location,
+            location: {
+                address: location.address,
+                coordinates: {
+                    lat: location.coordinates.lat,
+                    lng: location.coordinates.lng
+                }
+            },
             description,
             preferredDate,
             status: "pending"
@@ -53,7 +67,7 @@ router.get("/admin", verifyToken, authorizeRoles("ADMIN"), async (req, res) => {
 });
 
 // ── GET /api/requests/my (Customer Get Own Requests) ─────────────────────────
-router.get("/my", verifyToken, authorizeRoles("USER"), async (req, res) => {
+router.get("/my", verifyToken, authorizeRoles("USER", "WORKER", "ADMIN"), async (req, res) => {
     try {
         const requests = await ServiceRequest.find({ customer: req.user.id })
             .populate("assignedWorker", "username phone serviceType")

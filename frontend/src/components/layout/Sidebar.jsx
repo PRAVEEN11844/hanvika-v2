@@ -27,7 +27,7 @@ const Sidebar = () => {
                     <span className="link-icon">🛠️</span>
                     Service Categories
                 </NavLink>
-                <NavLink to="/orders" className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}>
+                <NavLink to="/customer/dashboard" className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}>
                     <span className="link-icon">📋</span>
                     My Requests
                 </NavLink>

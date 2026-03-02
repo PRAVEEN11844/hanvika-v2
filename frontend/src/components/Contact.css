@@ -1,6 +1,6 @@
 .contact-container {
   min-height: 100vh;
-  background: #f8f9fa;
+  background: #F8F9FF;
   padding: 40px 20px;
   display: flex;
   justify-content: center;
@@ -19,7 +19,7 @@
 
 .contact-info {
   flex: 1;
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: linear-gradient(135deg, #5B21B6 0%, #8B5CF6 100%);
   color: white;
   padding: 40px;
 }
@@ -93,14 +93,14 @@
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: #7C3AED;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
 }
 
 .submit-btn {
   width: 100%;
   padding: 14px;
-  background: #6366f1;
+  background: #7C3AED;
   color: white;
   border: none;
   border-radius: 8px;
@@ -114,12 +114,12 @@
 }
 
 .submit-btn:hover {
-  background: #4f46e5;
+  background: #5B21B6;
   transform: translateY(-1px);
 }
 
 .submit-btn:disabled {
-  background: #a5a6f6;
+  background: #A78BFA;
   cursor: not-allowed;
 }
 
@@ -155,6 +155,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
