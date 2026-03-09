@@ -62,11 +62,12 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Username or email is required" });
     }
 
-    // Find by username OR email
+    // Find by email OR phone (fallback to username mapping to identifier for legacy support)
     const user = await User.findOne({
       $or: [
-        { username: identifier },
         { email: identifier.toLowerCase().trim() },
+        { phone: identifier },
+        { username: identifier }
       ],
     });
 

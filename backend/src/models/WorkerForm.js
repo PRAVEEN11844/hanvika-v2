@@ -11,6 +11,14 @@ const workerFormSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  aadharNumber: {
+    type: String,
+    required: true,
+  },
+  panNumber: {
+    type: String,
+    required: true,
+  },
   workerTypes: {
     acRepair: { type: Boolean, default: false },
     mechanicRepair: { type: Boolean, default: false },

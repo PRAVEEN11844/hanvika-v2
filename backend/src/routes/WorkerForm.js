@@ -25,6 +25,8 @@ router.post("/", upload.single("profilePhoto"), async (req, res) => {
       age,
       gender,
       costPerHour,
+      aadharNumber,
+      panNumber,
     } = req.body;
 
     // Add VERY detailed logging for debugging
@@ -40,6 +42,16 @@ router.post("/", upload.single("profilePhoto"), async (req, res) => {
       parsedWorkerTypes = JSON.parse(workerTypes);
     }
 
+    // Validations
+    if (!aadharNumber || aadharNumber.length !== 12 || !/^\d{12}$/.test(aadharNumber)) {
+      return res.status(400).json({ error: "Invalid Aadhar number. Must be exactly 12 digits." });
+    }
+
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panNumber || !panRegex.test(panNumber)) {
+      return res.status(400).json({ error: "Invalid PAN number format." });
+    }
+
     // Build the data object with explicit handling for costPerHour
     const newWorkerData = {
       fullName,
@@ -52,6 +64,8 @@ router.post("/", upload.single("profilePhoto"), async (req, res) => {
       email,
       age,
       gender,
+      aadharNumber,
+      panNumber,
       // Super explicit handling of costPerHour
       costPerHour: costPerHour === undefined || costPerHour === null ? "" : String(costPerHour),
       profilePhoto: {
@@ -74,9 +88,9 @@ router.post("/", upload.single("profilePhoto"), async (req, res) => {
 
     const newWorker = new WorkerForm(newWorkerData);
     console.log("Before save - costPerHour:", newWorker.costPerHour);
-    
+
     const savedWorker = await newWorker.save();
-    
+
     console.log("After save - Worker saved with data:", {
       id: savedWorker._id,
       fullName: savedWorker.fullName,
@@ -96,7 +110,7 @@ router.post("/", upload.single("profilePhoto"), async (req, res) => {
 router.get("/by-type/:type", async (req, res) => {
   try {
     const serviceType = req.params.type;
-    
+
     // Validate service type
     const validTypes = ['acRepair', 'mechanicRepair', 'electricalRepair', 'electronicRepair', 'plumber', 'packersMovers'];
     if (!validTypes.includes(serviceType)) {
@@ -109,7 +123,7 @@ router.get("/by-type/:type", async (req, res) => {
 
     // Find workers matching the criteria
     const workers = await WorkerForm.find(query);
-    
+
     res.status(200).json(workers);
   } catch (error) {
     console.error("Error fetching workers by type:", error);
@@ -134,11 +148,11 @@ router.get("/all", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const worker = await WorkerForm.findById(req.params.id);
-    
+
     if (!worker) {
       return res.status(404).json({ error: "Worker not found" });
     }
-    
+
     res.status(200).json(worker);
   } catch (error) {
     console.error("Error fetching worker by ID:", error);
@@ -154,10 +168,10 @@ router.post("/update-missing-fields", async (req, res) => {
       { costPerHour: { $exists: false } },
       { $set: { costPerHour: "" } }
     );
-    
-    res.status(200).json({ 
-      message: "Updated missing fields", 
-      updated: result.modifiedCount 
+
+    res.status(200).json({
+      message: "Updated missing fields",
+      updated: result.modifiedCount
     });
   } catch (error) {
     console.error("Error updating missing fields:", error);
@@ -170,22 +184,22 @@ router.post("/update-worker/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { costPerHour } = req.body;
-    
+
     if (!costPerHour && costPerHour !== "") {
       return res.status(400).json({ error: "costPerHour is required" });
     }
-    
+
     const worker = await WorkerForm.findById(id);
     if (!worker) {
       return res.status(404).json({ error: "Worker not found" });
     }
-    
+
     console.log(`Updating worker ${id} with costPerHour: ${costPerHour}`);
-    
+
     worker.costPerHour = String(costPerHour);
     await worker.save();
-    
-    res.status(200).json({ 
+
+    res.status(200).json({
       message: "Worker updated successfully",
       worker: {
         id: worker._id,

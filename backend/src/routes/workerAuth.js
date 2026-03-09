@@ -71,7 +71,11 @@ router.post("/login", async (req, res) => {
 
     // Find worker
     const worker = await Worker.findOne({
-      $or: [{ username: identifier }, { email: identifier }],
+      $or: [
+        { email: identifier },
+        { phone: identifier },
+        { username: identifier }
+      ],
     });
 
     if (!worker) {
