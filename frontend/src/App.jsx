@@ -31,9 +31,14 @@ function App() {
     location.pathname === "/admin-login" ||
     location.pathname === "/unauthorized" ||
     location.pathname === "/workers-dashboard" ||
-    location.pathname === "/worker-login";
+    location.pathname === "/worker-login" ||
+    location.pathname === "/select" ||
+    location.pathname === "/login";
 
   console.log('[App] path:', location.pathname, '| isStandalone:', isStandalone);
+
+  // Hide Navbar on customer dashboard (sidebar handles nav there)
+  const showNavbar = location.pathname !== '/customer/dashboard';
 
   return (
     <AuthProvider>
@@ -58,6 +63,8 @@ function App() {
               }
             />
             <Route path="/worker-login" element={<WorkerLogin />} />
+            <Route path="/select" element={<Select />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route
               path="/unauthorized"
               element={
@@ -81,12 +88,12 @@ function App() {
           </Routes>
         ) : (
           <AppLayout>
-            <Navbar />
+            {showNavbar && <Navbar />}
             <Routes>
               <Route path="/" element={<WorkerSection />} />
-              <Route path="/login" element={<LoginPage />} />
+
               <Route path="/workers" element={<Navigate to="/" />} />
-              <Route path="/select" element={<Select />} />
+
               <Route path="/worker-login" element={<WorkerLogin />} />
               <Route path="/worker-form" element={<WorkerForm />} />
               <Route

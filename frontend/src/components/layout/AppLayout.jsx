@@ -6,8 +6,8 @@ const AppLayout = ({ children }) => {
         <div style={{ display: "flex", width: "100%" }}>
             <Sidebar />
             <div style={{
-                marginLeft: "240px",
-                width: "calc(100% - 240px)",
+                marginLeft: "250px",
+                width: "calc(100% - 250px)",
                 padding: "40px",
                 minHeight: "100vh",
                 display: "flex",

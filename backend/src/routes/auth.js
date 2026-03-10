@@ -59,15 +59,14 @@ router.post("/login", async (req, res) => {
     console.log("Login attempt with identifier:", identifier);
 
     if (!identifier) {
-      return res.status(400).json({ error: "Username or email is required" });
+      return res.status(400).json({ error: "Phone number or email is required" });
     }
 
-    // Find by email OR phone (fallback to username mapping to identifier for legacy support)
+    // Find by email OR phone
     const user = await User.findOne({
       $or: [
         { email: identifier.toLowerCase().trim() },
-        { phone: identifier },
-        { username: identifier }
+        { phone: identifier }
       ],
     });
 

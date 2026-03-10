@@ -1,53 +1,87 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../AuthContext';
 import './Sidebar.css';
 
 const Sidebar = () => {
+    const { currentUser, logout } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    /* ── resolve customer name ────────────────────────────────── */
+    const resolveUser = () => {
+        // 1. AuthContext
+        if (currentUser?.name || currentUser?.fullName || currentUser?.username) return currentUser;
+        // 2. localStorage fallbacks
+        try {
+            const stored =
+                localStorage.getItem('user') ||
+                localStorage.getItem('currentUser') ||
+                localStorage.getItem('customerUser');
+            if (stored) return JSON.parse(stored);
+        } catch { /* ignore */ }
+        return null;
+    };
+
+    const user = resolveUser();
+    const displayName = user?.name || user?.fullName || user?.username || 'Customer';
+    const initial = displayName.charAt(0).toUpperCase();
+
+    const handleLogout = () => {
+        if (logout) logout();
+        navigate('/');
+    };
+
     return (
         <div className="sidebar">
-            <div className="sidebar-brand">
-                <div className="sidebar-logo">SS</div>
-                <h2>ServiceSphere</h2>
-            </div>
 
-            <div className="sidebar-profile">
-                <div className="profile-avatar">U</div>
-                <div className="profile-info">
-                    <h4>Guest User</h4>
-                    <span className="profile-role">Visitor</span>
+            {/* ── brand ─────────────────────────────────────── */}
+            <div className="sb-brand">
+                <div className="sb-logo"><span>H</span></div>
+                <div className="sb-brand-text">
+                    <span className="sb-brand-name">HanVika</span>
+                    <span className="sb-brand-sub">Customer Portal</span>
                 </div>
             </div>
 
-            <nav className="sidebar-nav">
-                <NavLink to="/workers-dashboard" className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}>
-                    <span className="link-icon">📊</span>
-                    Control Center
-                </NavLink>
-                <NavLink to="/" className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')} end>
-                    <span className="link-icon">🛠️</span>
-                    Service Categories
-                </NavLink>
-                <NavLink to="/customer/dashboard" className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}>
-                    <span className="link-icon">📋</span>
-                    My Requests
-                </NavLink>
-                <NavLink to="/reviews" className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}>
-                    <span className="link-icon">⭐</span>
-                    Client Feedback
-                </NavLink>
-                <NavLink to="/saved" className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}>
-                    <span className="link-icon">❤️</span>
-                    Saved Services
-                </NavLink>
-                <NavLink to="/settings" className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}>
-                    <span className="link-icon">⚙️</span>
-                    Settings
-                </NavLink>
-                <div className="sidebar-link logout-link">
-                    <span className="link-icon">🚪</span>
-                    Logout
+            {/* ── profile card ──────────────────────────────── */}
+            <div className="sb-profile">
+                <div className="sb-avatar-wrap">
+                    <div className="sb-avatar">{initial}</div>
+                    <span className="sb-dot" />
                 </div>
+                <div className="sb-profile-info">
+                    <span className="sb-profile-name">{displayName}</span>
+                    <span className="sb-profile-role">Customer</span>
+                </div>
+            </div>
+
+            {/* ── nav ─────────────────────────────────────────── */}
+            <span className="sb-section-label">MAIN MENU</span>
+
+            <nav className="sb-nav">
+                <NavLink to="/customer/dashboard" className={({ isActive }) => `sb-link${isActive ? ' active' : ''}`}>
+                    <span className="sb-icon">🏠</span> Dashboard Home
+                </NavLink>
+                <NavLink to="/" end className={({ isActive }) => `sb-link${isActive ? ' active' : ''}`}>
+                    <span className="sb-icon">🔧</span> Service Categories
+                </NavLink>
+                <NavLink to="/reviews" className={({ isActive }) => `sb-link${isActive ? ' active' : ''}`}>
+                    <span className="sb-icon">⭐</span> Client Feedback
+                </NavLink>
+                <NavLink to="/saved" className={({ isActive }) => `sb-link${isActive ? ' active' : ''}`}>
+                    <span className="sb-icon">❤️</span> Saved Services
+                </NavLink>
+                <NavLink to="/settings" className={({ isActive }) => `sb-link${isActive ? ' active' : ''}`}>
+                    <span className="sb-icon">⚙️</span> Settings
+                </NavLink>
             </nav>
+
+            {/* ── logout ──────────────────────────────────────── */}
+            <div className="sb-footer">
+                <button className="sb-logout" onClick={handleLogout}>
+                    LOG OUT
+                </button>
+            </div>
         </div>
     );
 };

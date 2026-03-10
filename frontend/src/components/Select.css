@@ -1,197 +1,407 @@
-.select-container {
-  background-color: #1A1228;
-  background-image: linear-gradient(160deg, #1A1228 0%, #0F2820 100%);
-  min-height: 100vh;
+/* frontend/src/components/Select.css — HanVika Role Selection */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap');
+
+/* ── Page shell ──────────────────────────────────────────────────────── */
+.select-page {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── LEFT PANEL ──────────────────────────────────────────────────────── */
+.select-left {
+  flex: 1;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  padding: 40px 48px;
+}
+
+/* Floating orbs */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  animation: float 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: #f97316;
+  top: -100px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 300px;
+  height: 300px;
+  background: #3b82f6;
+  bottom: 100px;
+  right: -80px;
+  animation-delay: -3s;
+}
+
+.orb-3 {
+  width: 200px;
+  height: 200px;
+  background: #f97316;
+  bottom: -50px;
+  left: 200px;
+  animation-delay: -5s;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+
+  50% {
+    transform: translateY(-30px) scale(1.05);
+  }
+}
+
+/* Logo */
+.select-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  z-index: 2;
+}
+
+.logo-square {
+  width: 48px;
+  height: 48px;
+  background: #f97316;
+  border-radius: 14px;
+  display: flex;
   align-items: center;
   justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: 24px;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(249, 115, 22, 0.4);
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-brand {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
   color: #ffffff;
-  font-family: 'Outfit', sans-serif;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+  line-height: 1;
 }
 
-.select-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at center, rgba(124, 58, 237, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
-  z-index: 1;
+.logo-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.select-content {
+/* Back to Home */
+.back-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: fit-content;
   position: relative;
   z-index: 2;
-  max-width: 600px;
-  width: 100%;
-  padding: 2rem;
+  margin-top: 16px;
 }
 
-.select-heading {
-  font-size: 2.5rem;
-  margin-bottom: 3rem;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  background: linear-gradient(to right, #ffffff, #A78BFA);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 700;
+.back-home-btn:hover {
+  background: rgba(249, 115, 22, 0.15);
+  border-color: rgba(249, 115, 22, 0.4);
+  color: #f97316;
+  transform: translateX(-3px);
 }
 
-.select-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: 100%;
-}
-
-.select-btn {
-  background-color: rgba(255, 255, 255, 0.05);
-  border: none;
-  border-radius: 12px;
-  padding: 0;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
+/* Hero */
+.select-hero {
   position: relative;
-  height: 80px;
-  backdrop-filter: blur(5px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  z-index: 2;
 }
 
-.select-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0) 100%);
-  transform: translateX(-100%);
-  transition: transform 0.6s ease-in-out;
-  z-index: 1;
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: 52px;
+  line-height: 1.1;
+  color: #ffffff;
+  margin: 0 0 20px;
+  letter-spacing: -1px;
 }
 
-.select-btn:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+.hero-accent {
+  color: #f97316;
 }
 
-.select-btn:hover::before {
-  transform: translateX(100%);
+.hero-desc {
+  font-size: 16px;
+  color: #94a3b8;
+  line-height: 1.6;
+  max-width: 360px;
+  margin: 0;
 }
 
-.btn-content {
+/* Stats */
+.select-stats {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  padding: 0 1.5rem;
-  height: 100%;
+  gap: 28px;
   position: relative;
   z-index: 2;
 }
 
-.btn-icon {
-  font-size: 1.8rem;
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  color: #ffffff;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: #334155;
+}
+
+/* ── RIGHT PANEL ─────────────────────────────────────────────────────── */
+.select-right {
+  width: 480px;
+  background: #f4f6f9;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  margin-right: 1.5rem;
-  color: #fff;
+  padding: 40px 32px;
+  flex-shrink: 0;
 }
 
-.btn-text {
-  flex-grow: 1;
+.select-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 40px 36px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+}
+
+.card-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 28px;
+  color: #1a2533;
+  margin: 0 0 8px;
+}
+
+.card-sub {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Role buttons */
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.role-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: 2px solid #f0f4f8;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: left;
-  font-size: 1.3rem;
-  font-weight: 600;
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.role-btn:hover {
+  border-color: #f97316;
+  background: #fff7ed;
+  transform: translateX(4px);
+  box-shadow: 0 8px 24px rgba(249, 115, 22, 0.12);
+}
+
+.role-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.worker-icon {
+  background: #fff7ed;
+}
+
+.customer-icon {
+  background: #eff6ff;
+}
+
+.admin-icon {
+  background: #fef2f2;
+}
+
+.role-info {
+  flex: 1;
+}
+
+.role-title {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #1a2533;
+  margin-bottom: 3px;
+}
+
+.role-desc {
+  display: block;
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.role-badge {
+  background: #f97316;
   color: #fff;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  margin-right: 8px;
+  flex-shrink: 0;
 }
 
-.arrow-icon {
-  font-size: 1.2rem;
-  opacity: 0.7;
-  margin-left: 0.5rem;
-  transition: transform 0.3s ease;
+.role-arrow {
+  font-size: 18px;
+  color: #d1d5db;
+  transition: all 0.2s;
+  flex-shrink: 0;
 }
 
-.select-btn:hover .arrow-icon {
-  transform: translateX(5px);
+.role-btn:hover .role-arrow {
+  color: #f97316;
+  transform: translateX(4px);
 }
 
-.workers-btn {
-  background: linear-gradient(90deg, rgba(124, 58, 237, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%);
-  border: 1px solid rgba(124, 58, 237, 0.25);
+.card-footer-text {
+  text-align: center;
+  font-size: 11px;
+  color: #d1d5db;
+  margin: 0;
+  line-height: 1.5;
 }
 
-.workers-btn .btn-icon {
-  background: linear-gradient(135deg, #5B21B6 0%, #8B5CF6 100%);
-  color: #fff;
-}
-
-.workers-btn:hover {
-  border: 1px solid rgba(124, 58, 237, 0.5);
-}
-
-.customers-btn {
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-}
-
-.customers-btn .btn-icon {
-  background: linear-gradient(135deg, #059669 0%, #34D399 100%);
-}
-
-.customers-btn:hover {
-  border: 1px solid rgba(16, 185, 129, 0.5);
-}
-
-/* Responsive adjustments */
-@media (min-width: 768px) {
-  .select-buttons {
-    max-width: 500px;
-    margin: 0 auto;
+/* ── MOBILE ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .select-page {
+    flex-direction: column;
   }
 
-  .select-btn {
-    height: 90px;
+  .select-left {
+    flex: none;
+    height: 240px;
+    padding: 28px 24px 20px;
   }
 
-  .btn-icon {
-    font-size: 2rem;
-    min-width: 60px;
-    height: 60px;
+  .hero-title {
+    font-size: 32px;
   }
 
-  .btn-text {
-    font-size: 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .select-heading {
-    font-size: 2rem;
-    margin-bottom: 2rem;
+  .hero-desc {
+    display: none;
   }
 
-  .btn-icon {
-    min-width: 40px;
-    height: 40px;
-    margin-right: 1rem;
+  .select-stats {
+    gap: 16px;
   }
 
-  .btn-text {
-    font-size: 1.1rem;
+  .stat-num {
+    font-size: 18px;
+  }
+
+  .select-right {
+    width: 100%;
+    flex: 1;
+    padding: 20px 16px;
+    align-items: flex-start;
+  }
+
+  .select-card {
+    padding: 28px 20px;
+    border-radius: 18px;
+  }
+
+  .card-title {
+    font-size: 22px;
+  }
+
+  .role-btn {
+    padding: 14px 16px;
+  }
+
+  .role-icon-wrap {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
   }
 }

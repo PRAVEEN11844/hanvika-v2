@@ -1,117 +1,281 @@
+/* frontend/src/components/layout/Sidebar.css — HanVika Customer Portal */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
+
+:root {
+    --sb-primary: #f97316;
+    --sb-primary-hover: #fb923c;
+    --sb-primary-light: #fff7ed;
+    --sb-primary-border: #fed7aa;
+    --sb-dark: #1a2533;
+    --sb-body: #4b5563;
+    --sb-muted: #9ca3af;
+    --sb-bg: #ffffff;
+    --sb-border: #f0f0f0;
+    --sb-card-bg: #fff8f3;
+    --sb-radius-btn: 10px;
+    --sb-radius-card: 12px;
+}
+
+/* ── shell ─────────────────────────────────────────────────────────────── */
 .sidebar {
-    width: 240px;
-    background-color: #111827;
-    color: white;
-    min-height: 100vh;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
+    width: 250px;
+    min-width: 250px;
+    height: 100vh;
     position: fixed;
     left: 0;
     top: 0;
-    z-index: 1000;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 40px;
-}
-
-.sidebar-logo {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #4F46E5, #14B8A6);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-}
-
-.sidebar-brand h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-    color: white;
-}
-
-.sidebar-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    margin-bottom: 32px;
-}
-
-.profile-avatar {
-    width: 48px;
-    height: 48px;
-    background-color: #4B5563;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-
-.profile-info h4 {
-    margin: 0;
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-.profile-role {
-    font-size: 0.8rem;
-    color: #9CA3AF;
-}
-
-.sidebar-nav {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    background: var(--sb-bg);
+    border-right: 1px solid var(--sb-border);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.06);
+    z-index: 200;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 transparent;
 }
 
-.sidebar-link {
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 4px;
+}
+
+/* ── brand ─────────────────────────────────────────────────────────────── */
+.sb-brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid #f4f6f9;
+    flex-shrink: 0;
+}
+
+.sb-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--sb-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 12px rgba(249, 115, 22, 0.35);
+    flex-shrink: 0;
+}
+
+.sb-logo span {
+    font-family: 'Syne', sans-serif;
+    font-weight: 900;
+    font-size: 20px;
+    color: #fff;
+}
+
+.sb-brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.sb-brand-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--sb-dark);
+    line-height: 1.15;
+}
+
+.sb-brand-sub {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--sb-muted);
+    letter-spacing: 0.3px;
+}
+
+/* ── profile card ──────────────────────────────────────────────────────── */
+.sb-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px;
+    padding: 12px 14px;
+    background: var(--sb-card-bg);
+    border: 1px solid var(--sb-primary-border);
+    border-radius: var(--sb-radius-card);
+    flex-shrink: 0;
+}
+
+.sb-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.sb-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f97316, #fb923c);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+}
+
+.sb-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 2px solid #fff;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.sb-profile-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sb-profile-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--sb-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sb-profile-role {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sb-primary);
+}
+
+/* ── section label ─────────────────────────────────────────────────────── */
+.sb-section-label {
+    display: block;
+    padding: 16px 20px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--sb-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+/* ── nav ───────────────────────────────────────────────────────────────── */
+.sb-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 12px;
+}
+
+.sb-link {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    color: #D1D5DB;
-    text-decoration: none;
-    font-size: 0.95rem;
+    padding: 10px 16px;
+    border-radius: var(--sb-radius-btn);
+    margin: 0;
+    border: none;
+    border-left: 3px solid transparent;
+    background: transparent;
+    color: var(--sb-body);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
     font-weight: 500;
-    transition: all 0.3s ease;
+    text-decoration: none;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.sidebar-link:hover {
-    background-color: #1F2937;
-    color: white;
+.sb-link:hover {
+    background: var(--sb-primary-light);
+    color: var(--sb-primary);
+    border-left-color: rgba(249, 115, 22, 0.3);
+    transform: translateX(2px);
 }
 
-.sidebar-link.active {
-    background-color: #374151;
-    color: white;
+.sb-link.active {
+    background: var(--sb-primary-light);
+    color: var(--sb-primary);
+    font-weight: 600;
+    border-left-color: var(--sb-primary);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
-.link-icon {
-    font-size: 1.1rem;
+.sb-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
 }
 
-.logout-link {
+/* ── footer / logout ───────────────────────────────────────────────────── */
+.sb-footer {
+    padding: 12px 16px 20px;
     margin-top: auto;
-    color: #EF4444;
+    border-top: 1px solid #f4f6f9;
+    flex-shrink: 0;
 }
 
-.logout-link:hover {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: #F87171;
+.sb-logout {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #ef4444;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.sb-logout:hover {
+    background: #ef4444;
+    color: #fff;
+    border-color: #ef4444;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);
+}
+
+/* ── hide legacy classes if any leak in ────────────────────────────────── */
+.sidebar-brand,
+.sidebar-profile,
+.sidebar-nav,
+.sidebar-link,
+.logout-link,
+.profile-avatar,
+.profile-info,
+.profile-role,
+.link-icon,
+.sidebar-logo {
+    display: none;
+}
+
+/* ── responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .sidebar.sidebar--open {
+        transform: translateX(0);
+    }
 }

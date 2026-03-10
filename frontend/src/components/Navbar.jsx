@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../AuthContext';
+import './Navbar.css';
 
 
 const Navbar = () => {
@@ -39,7 +40,7 @@ const Navbar = () => {
         {/* Logo */}
         <div className="navbar-logo">
           <NavLink to="/" onClick={closeMenu}>
-            HanVika -AG
+            HanVika
           </NavLink>
         </div>
 

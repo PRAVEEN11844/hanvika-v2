@@ -4,6 +4,7 @@ import axios from 'axios';
 import { AuthContext } from '../AuthContext';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
+import './CustomerDashboard.css';
 
 // Fix default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -25,11 +26,31 @@ const getLocationInfo = (location) => {
     };
 };
 
+const serviceLabels = {
+    acRepair: 'AC Repair', mechanicRepair: 'Mechanic Repair',
+    electricalRepair: 'Electrical Repair', electronicRepair: 'Electronics Repair',
+    plumber: 'Plumbing', packersMovers: 'Packers & Movers'
+};
+
+const serviceEmojis = {
+    acRepair: '❄️', mechanicRepair: '🔧', electricalRepair: '⚡',
+    electronicRepair: '📱', plumber: '🔩', packersMovers: '📦'
+};
+
+const FILTERS = [
+    { key: 'all', label: 'All' },
+    { key: 'pending', label: 'Pending' },
+    { key: 'assigned', label: 'Assigned' },
+    { key: 'in-progress', label: 'In Progress' },
+    { key: 'completed', label: 'Completed' },
+];
+
 const CustomerDashboard = () => {
-    const { authToken } = useContext(AuthContext);
+    const { authToken, currentUser } = useContext(AuthContext);
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [activeFilter, setActiveFilter] = useState('all');
 
     const fetchRequests = async () => {
         try {
@@ -52,123 +73,195 @@ const CustomerDashboard = () => {
         if (authToken) fetchRequests();
     }, [authToken]);
 
-    const getStatusBadge = (status) => {
-        const colors = {
-            'pending': { bg: '#fef3c7', text: '#92400e' },
-            'assigned': { bg: '#dbeafe', text: '#1e40af' },
-            'in-progress': { bg: '#ede9fe', text: '#5b21b6' },
-            'completed': { bg: '#d1fae5', text: '#065f46' },
-            'cancelled': { bg: '#fee2e2', text: '#991b1b' }
-        };
-        const c = colors[status] || { bg: '#f3f4f6', text: '#374151' };
-        return (
-            <span style={{
-                padding: '4px 10px', borderRadius: 20, fontSize: '0.75rem',
-                fontWeight: 600, background: c.bg, color: c.text
-            }}>
-                {status.replace('-', ' ').toUpperCase()}
-            </span>
-        );
-    };
+    // Derived counts
+    const safeReqs = Array.isArray(requests) ? requests : [];
+    const totalCount = safeReqs.length;
+    const completedCount = safeReqs.filter(r => r.status === 'completed').length;
+    const pendingCount = safeReqs.filter(r => r.status === 'pending').length;
 
-    const serviceLabels = {
-        acRepair: 'AC Repair', mechanicRepair: 'Mechanic Repair',
-        electricalRepair: 'Electrical Repair', electronicRepair: 'Electronics Repair',
-        plumber: 'Plumbing', packersMovers: 'Packers & Movers'
-    };
-
-    if (loading) {
-        return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>Loading your requests...</div>;
-    }
+    // Filtered list
+    const filtered = activeFilter === 'all'
+        ? safeReqs
+        : safeReqs.filter(r => r.status === activeFilter);
 
     return (
-        <div style={{ maxWidth: 900, margin: '2rem auto', padding: '0 1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>📋 My Service Requests</h2>
-                <Link
-                    to="/create-request"
-                    style={{
-                        padding: '10px 18px', borderRadius: 8, background: '#2563eb', color: '#fff',
-                        fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem'
-                    }}
-                >
-                    + New Request
-                </Link>
-            </div>
+        <div className="cd">
 
-            {error && (
-                <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#dc2626', padding: '12px 16px', borderRadius: 8, marginBottom: 16 }}>
-                    {error}
+            {/* ── HEADER ─────────────────────────────────── */}
+            <header className="cd-header">
+                <div className="cd-header-left">
+                    <h1 className="cd-title">My Service Requests</h1>
+                    <p className="cd-subtitle">Track and manage all your service bookings</p>
                 </div>
-            )}
-
-            {requests.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 40, background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', color: '#94a3b8' }}>
-                    <p style={{ fontSize: '1.1rem' }}>No service requests yet.</p>
-                    <Link to="/create-request" style={{ color: '#2563eb' }}>Create your first request →</Link>
+                <div className="cd-header-right">
+                    <button className="cd-bell" title="Notifications">🔔</button>
+                    <Link to="/create-request" className="cd-new-req">+ <span>New Request</span></Link>
                 </div>
-            ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    {requests.map((req) => {
-                        const locInfo = getLocationInfo(req.location);
-                        return (
-                            <div key={req._id} style={{
-                                background: '#fff', borderRadius: 12,
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden'
-                            }}>
-                                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                                    {/* Map panel */}
-                                    {locInfo.coords && (
-                                        <div style={{ width: 220, minHeight: 180, flexShrink: 0 }}>
-                                            <MapContainer
-                                                center={locInfo.coords}
-                                                zoom={14}
-                                                style={{ height: '100%', width: '100%' }}
-                                                scrollWheelZoom={false}
-                                                dragging={false}
-                                                zoomControl={false}
-                                            >
-                                                <TileLayer
-                                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                                />
-                                                <Marker position={locInfo.coords}>
-                                                    <Popup>{locInfo.address}</Popup>
-                                                </Marker>
-                                            </MapContainer>
-                                        </div>
-                                    )}
+            </header>
 
-                                    {/* Details panel */}
-                                    <div style={{ flex: 1, padding: 20, minWidth: 200 }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                                            <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#1e293b' }}>
-                                                {serviceLabels[req.serviceType] || req.serviceType}
-                                            </span>
-                                            {getStatusBadge(req.status)}
-                                        </div>
-                                        <div style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: 1.7 }}>
-                                            <div>📍 {locInfo.address}</div>
-                                            <div>📅 Preferred: {new Date(req.preferredDate).toLocaleDateString()}</div>
-                                            {req.description && <div>📝 {req.description}</div>}
-                                        </div>
-                                        {req.assignedWorker && (
-                                            <div style={{ marginTop: 10, padding: '8px 12px', background: '#f0fdf4', borderRadius: 8, fontSize: '0.85rem' }}>
-                                                <strong>Assigned:</strong> {req.assignedWorker.username} — 📞 {req.assignedWorker.phone}
+            <div className="cd-content">
+
+                {/* ── ERROR ───────────────────────────────── */}
+                {error && <div className="cd-error">{error}</div>}
+
+                {/* ── STATS ROW ───────────────────────────── */}
+                <div className="cd-stats">
+                    <div className="cd-stat cd-stat--total">
+                        <span className="cd-stat-icon">📋</span>
+                        <div className="cd-stat-info">
+                            <span className="cd-stat-count">{totalCount}</span>
+                            <span className="cd-stat-label">Total Requests</span>
+                        </div>
+                    </div>
+                    <div className="cd-stat cd-stat--done">
+                        <span className="cd-stat-icon">✅</span>
+                        <div className="cd-stat-info">
+                            <span className="cd-stat-count">{completedCount}</span>
+                            <span className="cd-stat-label">Completed</span>
+                        </div>
+                    </div>
+                    <div className="cd-stat cd-stat--pending">
+                        <span className="cd-stat-icon">⏳</span>
+                        <div className="cd-stat-info">
+                            <span className="cd-stat-count">{pendingCount}</span>
+                            <span className="cd-stat-label">Pending</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ── FILTER TABS ─────────────────────────── */}
+                <div className="cd-filters">
+                    {FILTERS.map(f => (
+                        <button key={f.key}
+                            className={`cd-filter ${activeFilter === f.key ? 'cd-filter--active' : ''}`}
+                            onClick={() => setActiveFilter(f.key)}>
+                            {f.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* ── LOADING SKELETONS ───────────────────── */}
+                {loading ? (
+                    <div className="cd-skeletons">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="cd-skeleton" />
+                        ))}
+                    </div>
+
+                    /* ── EMPTY STATE ──────────────────────────── */
+                ) : filtered.length === 0 ? (
+                    <div className="cd-empty">
+                        <span className="cd-empty-icon">📋</span>
+                        <h3>{activeFilter === 'all' ? 'No requests yet' : `No ${activeFilter} requests`}</h3>
+                        <p>{activeFilter === 'all' ? 'Book your first service to get started' : 'Try a different filter'}</p>
+                        {activeFilter === 'all' && (
+                            <Link to="/create-request" className="cd-empty-btn">+ Book a Service</Link>
+                        )}
+                    </div>
+
+                    /* ── REQUEST CARDS ────────────────────────── */
+                ) : (
+                    <div className="cd-cards">
+                        {filtered.map(req => {
+                            const locInfo = getLocationInfo(req.location);
+                            const statusClass = (req.status || '').replace(/\s+/g, '-');
+                            const workerInitial = req.assignedWorker?.username?.charAt(0)?.toUpperCase() || '?';
+
+                            return (
+                                <div key={req._id} className={`cd-card cd-card--${statusClass}`}>
+                                    <div className="cd-card-inner">
+
+                                        {/* Map (left on desktop, top on mobile) */}
+                                        {locInfo.coords && (
+                                            <div className="cd-card-map">
+                                                <MapContainer
+                                                    center={locInfo.coords}
+                                                    zoom={14}
+                                                    style={{ height: '100%', width: '100%' }}
+                                                    scrollWheelZoom={false}
+                                                    dragging={false}
+                                                    zoomControl={false}
+                                                >
+                                                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                                    <Marker position={locInfo.coords}>
+                                                        <Popup>{locInfo.address}</Popup>
+                                                    </Marker>
+                                                </MapContainer>
                                             </div>
                                         )}
-                                        {(req.checkInTime || req.checkOutTime) && (
-                                            <div style={{ marginTop: 8, fontSize: '0.8rem', color: '#64748b' }}>
-                                                {req.checkInTime && <span style={{ color: '#10b981' }}>In: {new Date(req.checkInTime).toLocaleTimeString()} </span>}
-                                                {req.checkOutTime && <span style={{ color: '#3b82f6' }}>Out: {new Date(req.checkOutTime).toLocaleTimeString()}</span>}
+
+                                        {/* Details (right) */}
+                                        <div className="cd-card-details">
+                                            {/* Service title + badge */}
+                                            <div className="cd-card-top">
+                                                <span className="cd-card-service">
+                                                    <span className="cd-card-service-emoji">
+                                                        {serviceEmojis[req.serviceType] || '🛠️'}
+                                                    </span>
+                                                    {serviceLabels[req.serviceType] || req.serviceType}
+                                                </span>
+                                                <span className={`cd-badge cd-badge--${statusClass}`}>
+                                                    {(req.status || '').replace('-', ' ').toUpperCase()}
+                                                </span>
                                             </div>
-                                        )}
+
+                                            {/* Meta info */}
+                                            <div className="cd-card-meta">
+                                                <div className="cd-meta-item">📍 <span>{locInfo.address}</span></div>
+                                                <div className="cd-meta-item">📅 <span>{new Date(req.preferredDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>
+                                            </div>
+
+                                            {req.description && (
+                                                <div className="cd-card-desc">📝 {req.description}</div>
+                                            )}
+
+                                            {/* Assigned worker card */}
+                                            {req.assignedWorker && (
+                                                <div className="cd-worker-card">
+                                                    <div className="cd-worker-avatar">{workerInitial}</div>
+                                                    <div className="cd-worker-info">
+                                                        <span className="cd-worker-name">{req.assignedWorker.username}</span>
+                                                        {req.assignedWorker.phone && (
+                                                            <span className="cd-worker-phone">📞 {req.assignedWorker.phone}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Timing pills */}
+                                            {(req.checkInTime || req.checkOutTime) && (
+                                                <div className="cd-times">
+                                                    {req.checkInTime && (
+                                                        <span className="cd-time-in">✓ In: {new Date(req.checkInTime).toLocaleTimeString('en-IN')}</span>
+                                                    )}
+                                                    {req.checkOutTime && (
+                                                        <span className="cd-time-out">⏎ Out: {new Date(req.checkOutTime).toLocaleTimeString('en-IN')}</span>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* Actions */}
+                                            {(req.status === 'completed' || req.status === 'pending') && (
+                                                <div className="cd-card-actions">
+                                                    {req.status === 'completed' && (
+                                                        <Link to="/create-request" className="cd-action cd-action--rebook">🔁 Rebook</Link>
+                                                    )}
+                                                    {req.status === 'pending' && (
+                                                        <button className="cd-action cd-action--cancel"
+                                                            onClick={() => { /* placeholder */ }}>
+                                                            ❌ Cancel
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

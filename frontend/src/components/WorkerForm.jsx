@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const WorkerForm = () => {
   const navigate = useNavigate();
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
@@ -24,11 +25,14 @@ const WorkerForm = () => {
     gender: "",
     country: "",
     costPerHour: "",
+    aadharNumber: "",
+    panNumber: "",
     profilePhoto: null,
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setError("");
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -56,6 +60,20 @@ const WorkerForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    // Validate Aadhar
+    if (!formData.aadharNumber || formData.aadharNumber.length !== 12 || !/^\d{12}$/.test(formData.aadharNumber)) {
+      setError("Aadhar number must be exactly 12 digits.");
+      return;
+    }
+
+    // Validate PAN
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!formData.panNumber || !panRegex.test(formData.panNumber)) {
+      setError("PAN number format must be: 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F).");
+      return;
+    }
 
     // Prepare form data (multipart) to include file and text fields
     const data = new FormData();
@@ -70,6 +88,8 @@ const WorkerForm = () => {
     data.append("age", formData.age);
     data.append("gender", formData.gender);
     data.append("costPerHour", formData.costPerHour);
+    data.append("aadharNumber", formData.aadharNumber);
+    data.append("panNumber", formData.panNumber);
     if (formData.profilePhoto) {
       data.append("profilePhoto", formData.profilePhoto);
     }
@@ -80,10 +100,9 @@ const WorkerForm = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      alert("Worker details submitted successfully!");
       navigate("/workers-dashboard");
     } catch (error) {
-      alert(error.response?.data?.error || "Submission failed");
+      setError(error.response?.data?.error || "Submission failed. Please check all fields.");
     }
   };
 
@@ -113,6 +132,22 @@ const WorkerForm = () => {
       </div>
 
       <form className="worker-form" onSubmit={handleSubmit}>
+
+        {/* ── Inline error ── */}
+        {error && (
+          <div style={{
+            background: 'rgba(239,68,68,0.1)',
+            border: '1px solid rgba(239,68,68,0.3)',
+            borderRadius: '10px',
+            padding: '12px 16px',
+            color: '#ef4444',
+            fontSize: '13px',
+            marginBottom: '20px',
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
+
         <div className="form-row">
           <div className="form-group">
             <label>Full Name</label>
@@ -133,7 +168,7 @@ const WorkerForm = () => {
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
-              placeholder="Ex: +1 (555) 123-4567"
+              placeholder="Ex: +91 98765 43210"
               required
             />
           </div>
@@ -171,7 +206,7 @@ const WorkerForm = () => {
                 onChange={handleCheckboxChange}
               />
               <span className="checkmark"></span>
-              <span className="service-title">AC Repair & Maintenance</span>
+              <span className="service-title">AC Repair &amp; Maintenance</span>
               <span className="service-desc">Cooling system services</span>
             </label>
 
@@ -187,7 +222,7 @@ const WorkerForm = () => {
               />
               <span className="checkmark"></span>
               <span className="service-title">Auto Mechanic Services</span>
-              <span className="service-desc">Vehicle repair & maintenance</span>
+              <span className="service-desc">Vehicle repair &amp; maintenance</span>
             </label>
 
             <label
@@ -259,7 +294,7 @@ const WorkerForm = () => {
               name="city"
               value={formData.city}
               onChange={handleChange}
-              placeholder="Ex: San Francisco"
+              placeholder="Ex: Hyderabad"
               required
             />
           </div>
@@ -271,7 +306,7 @@ const WorkerForm = () => {
               name="state"
               value={formData.state}
               onChange={handleChange}
-              placeholder="Ex: California"
+              placeholder="Ex: Telangana"
               required
             />
           </div>
@@ -284,7 +319,7 @@ const WorkerForm = () => {
             name="country"
             value={formData.country}
             onChange={handleChange}
-            placeholder="Ex: United States"
+            placeholder="Ex: India"
             required
           />
         </div>
@@ -296,9 +331,49 @@ const WorkerForm = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="Ex: contact@michaelservices.com"
+            placeholder="Ex: contact@services.com"
             required
           />
+        </div>
+
+        {/* ── Aadhar Number (missing — now added) ── */}
+        <div className="form-row">
+          <div className="form-group">
+            <label>Aadhar Number *</label>
+            <input
+              type="text"
+              name="aadharNumber"
+              value={formData.aadharNumber}
+              onChange={e => {
+                const val = e.target.value.replace(/\D/g, '').slice(0, 12);
+                setError("");
+                setFormData(prev => ({ ...prev, aadharNumber: val }));
+              }}
+              placeholder="Enter 12-digit Aadhar number"
+              maxLength={12}
+              required
+            />
+            <span className="wf-hint">{formData.aadharNumber.length}/12 digits</span>
+          </div>
+
+          {/* ── PAN Number (missing — now added) ── */}
+          <div className="form-group">
+            <label>PAN Card Number *</label>
+            <input
+              type="text"
+              name="panNumber"
+              value={formData.panNumber}
+              onChange={e => {
+                const val = e.target.value.toUpperCase().slice(0, 10);
+                setError("");
+                setFormData(prev => ({ ...prev, panNumber: val }));
+              }}
+              placeholder="e.g. ABCDE1234F"
+              maxLength={10}
+              required
+            />
+            <span className="wf-hint">Format: 5 letters, 4 digits, 1 letter</span>
+          </div>
         </div>
 
         <div className="form-row">

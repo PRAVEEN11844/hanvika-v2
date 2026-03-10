@@ -332,6 +332,7 @@ function DispatchRequests({ token, showToast }) {
   const [availableWorkers, setAvailableWorkers] = useState([]);
   const [selectedWorkerId, setSelectedWorkerId] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [completedDateFilter, setCompletedDateFilter] = useState("");
 
   const headers = { Authorization: `Bearer ${token}` };
 
@@ -365,6 +366,16 @@ function DispatchRequests({ token, showToast }) {
   const futureWorks = requests.filter(r => r.status === "pending" || r.status === "assigned");
   const currentWorks = requests.filter(r => r.status === "in-progress");
   const completedWorks = requests.filter(r => r.status === "completed");
+
+  // Date filter for completed column
+  const filteredCompleted = completedDateFilter
+    ? completedWorks.filter(req => {
+      const checkIn = req.checkInTime || req.checkOutTime || req.updatedAt;
+      if (!checkIn) return false;
+      const reqDate = new Date(checkIn).toISOString().split("T")[0];
+      return reqDate === completedDateFilter;
+    })
+    : completedWorks;
 
   const openAssignModal = async (reqObj) => {
     setAssignModal(reqObj);
@@ -539,14 +550,59 @@ function DispatchRequests({ token, showToast }) {
 
         {/* ── COMPLETED WORKS ── */}
         <div style={colStyle}>
-          <div style={colHeaderStyle("#374151")}>
-            <span>✅ Completed</span>
-            <span style={{ background: "#fff3", borderRadius: 12, padding: "2px 10px", fontSize: 12 }}>{completedWorks.length}</span>
+          <div style={{
+            background: "#2d3748", borderRadius: "12px 12px 0 0",
+            padding: "14px 16px", display: "flex",
+            flexDirection: "column", gap: 8,
+          }}>
+            {/* Title row */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span>✅</span>
+              <span style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>Completed</span>
+              <span style={{
+                marginLeft: "auto", background: "#4a5568", color: "#fff",
+                borderRadius: 20, padding: "2px 10px", fontSize: 12, fontWeight: 700,
+              }}>{filteredCompleted.length}</span>
+            </div>
+            {/* Date filter row */}
+            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <input
+                type="date"
+                value={completedDateFilter}
+                onChange={e => setCompletedDateFilter(e.target.value)}
+                style={{
+                  flex: 1, padding: "6px 10px", borderRadius: 8,
+                  border: "1px solid #4a5568", background: "#1a202c",
+                  color: "#fff", fontSize: 12, cursor: "pointer",
+                  outline: "none",
+                }}
+              />
+              {completedDateFilter && (
+                <button
+                  onClick={() => setCompletedDateFilter("")}
+                  style={{
+                    background: "#4a5568", color: "#fff", border: "none",
+                    borderRadius: 8, padding: "6px 10px", cursor: "pointer",
+                    fontSize: 13, fontWeight: 700, lineHeight: 1,
+                  }}
+                  title="Clear filter"
+                >×</button>
+              )}
+            </div>
+            {/* Show result count when filter is active */}
+            {completedDateFilter && (
+              <div style={{ fontSize: 11, color: "#a0aec0" }}>
+                {filteredCompleted.length === 0
+                  ? "No completed jobs on this date"
+                  : `${filteredCompleted.length} job${filteredCompleted.length > 1 ? "s" : ""} completed on ${new Date(completedDateFilter + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`
+                }
+              </div>
+            )}
           </div>
           <div style={colBodyStyle}>
-            {completedWorks.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 24, color: "#9ca3af", fontSize: 13 }}>No completed work yet</div>
-            ) : completedWorks.map(r => (
+            {filteredCompleted.length === 0 ? (
+              <div style={{ textAlign: "center", padding: 24, color: "#9ca3af", fontSize: 13 }}>{completedDateFilter ? "No jobs match this date" : "No completed work yet"}</div>
+            ) : filteredCompleted.map(r => (
               <div key={r._id} style={{ ...cardStyle, borderLeft: "3px solid #6b7280", opacity: 0.85 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                   <span style={{ fontWeight: 700, color: "#1a2340" }}>{r.customer?.username || "Customer"}</span>

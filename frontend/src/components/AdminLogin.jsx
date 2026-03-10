@@ -78,7 +78,7 @@ export default function AdminLogin() {
                         cursor: "pointer",
                     }}
                 >
-                    HanVika -AG
+                    HanVika
                 </span>
                 <button
                     onClick={() => navigate("/select")}

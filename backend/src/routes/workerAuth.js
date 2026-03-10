@@ -66,15 +66,14 @@ router.post("/login", async (req, res) => {
     const { identifier, password } = req.body;
 
     if (!identifier) {
-      return res.status(400).json({ error: "Username or email is required" });
+      return res.status(400).json({ error: "Phone number or email is required" });
     }
 
     // Find worker
     const worker = await Worker.findOne({
       $or: [
         { email: identifier },
-        { phone: identifier },
-        { username: identifier }
+        { phone: identifier }
       ],
     });
 

@@ -311,3 +311,11 @@ textarea {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
 }
+
+/* Helper hint text */
+.wf-hint {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: -4px;
+    display: block;
+}
