@@ -670,6 +670,36 @@ function DispatchRequests({ token, showToast }) {
                     <div style={{ ...valueStyle, fontWeight: 400, fontSize: 12 }}>{new Date(r.checkOutTime).toLocaleTimeString("en-IN")}</div>
                   </>
                 )}
+                <div style={{ marginTop: '6px' }}>
+                  <span style={{
+                    fontSize: '10px',
+                    fontWeight: '700',
+                    color: '#9ca3af',
+                    letterSpacing: '0.5px',
+                    textTransform: 'uppercase',
+                    display: 'block',
+                    marginBottom: '2px',
+                  }}>
+                    COMPLETED DATE
+                  </span>
+                  <span style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: '#1a2533',
+                  }}>
+                    📅 {
+                      (() => {
+                        const d = r.checkOutTime || r.updatedAt || r.scheduledDate || r.preferredDate;
+                        if (!d) return 'N/A';
+                        return new Date(d).toLocaleDateString('en-IN', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        });
+                      })()
+                    }
+                  </span>
+                </div>
                 <div style={{ ...labelStyle, marginTop: 8 }}>Total Duration</div>
                 <div style={{ fontWeight: 700, color: "#065f46", fontSize: 13 }}>🕐 {formatDuration(r.checkInTime, r.checkOutTime)}</div>
               </div>
@@ -899,7 +929,6 @@ export default function AdminDashboard() {
     { label: "Dispatch", icon: "🚀" },
     { label: "Workers", icon: "👷" },
     { label: "Payslips", icon: "📄" },
-    { label: "Settings", icon: "⚙️" },
   ];
 
   const logout = () => {

@@ -738,7 +738,27 @@ export default function WorkersDashboard() {
           <div className="wd-info-box">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <p className="wd-info-sub" style={{ margin: 0 }}>Request and download your payslips</p>
-              <button className="wd-submit-btn" style={{ width: 'auto', padding: '8px 16px', margin: 0 }} onClick={handleRequestPayslip}>
+              <button
+                className="wd-submit-btn"
+                style={{
+                  width: 'auto',
+                  padding: '10px 20px',
+                  margin: 0,
+                  background: 'linear-gradient(135deg, #f97316, #fb923c)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: '700',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(249,115,22,0.35)',
+                  fontFamily: 'DM Sans, sans-serif',
+                  letterSpacing: '0.3px',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+                onClick={handleRequestPayslip}
+              >
                 + Request Payslip
               </button>
             </div>
