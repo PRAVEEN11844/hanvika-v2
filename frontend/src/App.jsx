@@ -21,6 +21,7 @@ import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import AdminLogin from "./components/AdminLogin";
 import CustomerDashboard from "./components/CustomerDashboard";
 import CreateRequest from "./components/CreateRequest";
+import NotFound from "./pages/NotFound";
 
 function App() {
   const location = useLocation();
@@ -94,6 +95,7 @@ function App() {
                 </div>
               }
             />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         ) : (
           <AppLayout>
@@ -122,6 +124,7 @@ function App() {
               <Route path="/orders" element={<Navigate to="/customer/dashboard" />} />
               <Route path="/saved" element={<Navigate to="/" />} />
               <Route path="/settings" element={<Navigate to="/" />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
             <Footer />
 
