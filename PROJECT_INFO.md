@@ -533,7 +533,7 @@ cd frontend && npm run preview # Preview production build
 2. Set root directory to `frontend`
 3. Build command: `npm install && npm run build`
 4. Publish directory: `dist`
-5. Add environment variable: `VITE_API_URL=https://your-backend-url.onrender.com`
+5. Add environment variable: `VITE_API_URL=https://api.hanvikaservices.in`
 
 ---
 
