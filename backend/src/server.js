@@ -7,11 +7,12 @@ const cron = require("node-cron");
 const app = express();
 
 const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:4173",
-  "https://hanvikaservices.in",
-  "https://www.hanvikaservices.in",
-  "https://api.hanvikaservices.in"
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://hanvika-workforce.netlify.app',
+  'https://hanvikaservices.in',
+  'https://www.hanvikaservices.in',
+  'https://hanvika-server.onrender.com',
 ];
 
 app.use(
