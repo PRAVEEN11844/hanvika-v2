@@ -32,9 +32,7 @@ router.post("/", upload.single("profilePhoto"), async (req, res) => {
     // Add VERY detailed logging for debugging
     console.log("==== WORKER FORM SUBMISSION ====");
     console.log("Full request body:", JSON.stringify(req.body, null, 2));
-    console.log("Cost per hour (direct access):", req.body.costPerHour);
-    console.log("Cost per hour (destructured):", costPerHour);
-    console.log("Cost per hour type:", typeof costPerHour);
+
 
     // Parse workerTypes from string to object
     let parsedWorkerTypes = {};
@@ -48,7 +46,7 @@ router.post("/", upload.single("profilePhoto"), async (req, res) => {
     }
 
     const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    if (!panNumber || !panRegex.test(panNumber)) {
+    if (panNumber && !panRegex.test(panNumber)) {
       return res.status(400).json({ error: "Invalid PAN number format." });
     }
 

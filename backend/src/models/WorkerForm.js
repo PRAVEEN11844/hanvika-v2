@@ -17,7 +17,8 @@ const workerFormSchema = new mongoose.Schema({
   },
   panNumber: {
     type: String,
-    required: true,
+    required: false,
+    default: "",
   },
   workerTypes: {
     acRepair: { type: Boolean, default: false },

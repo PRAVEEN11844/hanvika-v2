@@ -139,11 +139,11 @@ const WorkerSection = () => {
             <div className="glow-circle"></div>
             <div className="stat-floating card-top">
               <span className="icon">👷</span>
-              <span className="text">2,500+ Workers Deployed</span>
+              <span className="text">50+ Workers Deployed</span>
             </div>
             <div className="stat-floating card-bottom">
               <span className="icon">⭐ 4.9 Rating</span>
-              <span className="text">500+ Happy Clients</span>
+              <span className="text">150+ Happy Clients</span>
             </div>
           </div>
         </div>
@@ -152,20 +152,20 @@ const WorkerSection = () => {
       {/* SECTION 3: STATS BAR */}
       <section className="stats-bar">
         <div className="stat-box animate-on-scroll">
-          <div className="stat-number">2,500+</div>
+          <div className="stat-number">50+</div>
           <div className="stat-label">Workers Deployed</div>
         </div>
         <div className="stat-box animate-on-scroll">
-          <div className="stat-number">500+</div>
+          <div className="stat-number">150+</div>
           <div className="stat-label">Happy Clients</div>
         </div>
         <div className="stat-box animate-on-scroll">
-          <div className="stat-number">15+</div>
+          <div className="stat-number">3+</div>
           <div className="stat-label">Cities Covered</div>
         </div>
         <div className="stat-box animate-on-scroll">
-          <div className="stat-number">10+</div>
-          <div className="stat-label">Years Experience</div>
+          <div className="stat-number">7+</div>
+          <div className="stat-label">Services Offered</div>
         </div>
       </section>
 

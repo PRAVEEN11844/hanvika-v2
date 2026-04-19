@@ -112,12 +112,7 @@ const WorkerDetails = ({ workers }) => {
                 <span className="detail-label">Gender:</span>
                 <span className="detail-value">{worker.gender}</span>
               </div>
-              <div className="detail-item">
-                <span className="detail-label">Cost per hour:</span>
-                <span className="detail-value">
-                  {worker.costPerHour ? `₹${worker.costPerHour}` : 'Not specified'}
-                </span>
-              </div>
+              
               <div className="detail-item service-schedule">
                 <span className="detail-label">Availability:</span>
                 <span className="detail-value">Mon-Sat, 9 AM - 6 PM</span>

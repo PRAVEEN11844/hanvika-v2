@@ -68,9 +68,9 @@ const WorkerForm = () => {
       return;
     }
 
-    // Validate PAN
+    // Validate PAN (optional — only check format if a value was entered)
     const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    if (!formData.panNumber || !panRegex.test(formData.panNumber)) {
+    if (formData.panNumber && !panRegex.test(formData.panNumber)) {
       setError("PAN number format must be: 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F).");
       return;
     }
@@ -358,7 +358,7 @@ const WorkerForm = () => {
 
           {/* ── PAN Number (missing — now added) ── */}
           <div className="form-group">
-            <label>PAN Card Number *</label>
+            <label>PAN Card Number </label>
             <input
               type="text"
               name="panNumber"
@@ -370,7 +370,7 @@ const WorkerForm = () => {
               }}
               placeholder="e.g. ABCDE1234F"
               maxLength={10}
-              required
+
             />
             <span className="wf-hint">Format: 5 letters, 4 digits, 1 letter</span>
           </div>
@@ -405,18 +405,8 @@ const WorkerForm = () => {
           </div>
         </div>
 
-        {/* New Cost per hour field */}
-        <div className="form-group">
-          <label>Cost per hour</label>
-          <input
-            type="text"
-            name="costPerHour"
-            value={formData.costPerHour}
-            onChange={handleChange}
-            placeholder="Enter the amount in Rupees"
-            required
-          />
-        </div>
+
+
 
         <div className="form-group">
           <label>Profile Photo</label>
