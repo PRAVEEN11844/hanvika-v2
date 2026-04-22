@@ -265,13 +265,13 @@ const WorkerSection = () => {
           <div className="footer-col col-contact">
             <h4>Contact Us</h4>
             <a href="tel:+919515029658">📞 +91 95150 29658</a>
-            <a href="mailto:nreddy1624@gmail.com">📧 nreddy1624@gmail.com</a>
+            <a href="mailto:hanvikamanpower@gmail.com">📧hanvikamanpower@gmail.com</a>
             <span>📍 Hyderabad, Telangana</span>
           </div>
         </div>
         <div className="footer-bottom">
           <span>© 2026 HanVika Manpower Supply Private Limited. All rights reserved.</span>
-          <span>Made with ❤️ in Hyderabad</span>
+
         </div>
       </footer>
     </div>
