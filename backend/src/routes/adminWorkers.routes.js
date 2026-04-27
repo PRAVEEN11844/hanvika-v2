@@ -110,30 +110,67 @@ router.patch("/:id/approve", adminOnly, async (req, res) => {
     }
 });
 
-// ── PATCH /api/admin/workers/:id/reject ─────────────────────────────────────
-router.patch("/:id/reject", adminOnly, async (req, res) => {
+// ── PATCH /api/admin/workers/:id/approve ────────────────────────────────────
+router.patch("/:id/approve", adminOnly, async (req, res) => {
     try {
-        const { reason } = req.body;
+        const workerToApprove = await Worker.findById(req.params.id);
+        if (!workerToApprove) {
+            return res.status(404).json({ message: "Worker not found." });
+        }
+
+        if (workerToApprove.status === "approved") {
+            return res.status(400).json({ message: "Worker is already approved." });
+        }
+
+        // Fetch corresponding WorkerForm by email or phone
+        const workerForm = await WorkerForm.findOne({ 
+            $or: [
+                { email: workerToApprove.email },
+                { phone: workerToApprove.phone }
+            ]
+        });
+
+        if (!workerForm) {
+            console.log(`⚠️ WorkerForm not found for: ${workerToApprove.email || workerToApprove.phone}`);
+            // Allow approval even without WorkerForm — just mark as approved
+            const worker = await Worker.findByIdAndUpdate(
+                req.params.id,
+                {
+                    status: "approved",
+                    approvedAt: new Date(),
+                    rejectionReason: "",
+                },
+                { new: true }
+            ).select("-password");
+
+            console.log(`✅ Worker approved (no form): ${worker.username}`);
+            return res.json({ message: `${worker.username} has been approved!`, worker });
+        }
+
+        // If WorkerForm exists, extract services
+        let extractedServices = [];
+        if (workerForm.services && Array.isArray(workerForm.services)) {
+            extractedServices = workerForm.services.filter(s => SERVICES.includes(s));
+        }
+
         const worker = await Worker.findByIdAndUpdate(
             req.params.id,
             {
-                status: "rejected",
-                rejectionReason: reason || "Did not meet requirements.",
-                approvedAt: null,
+                status: "approved",
+                approvedAt: new Date(),
+                rejectionReason: "",
+                services: extractedServices.length > 0 ? extractedServices : workerForm.services || []
             },
             { new: true }
         ).select("-password");
 
-        if (!worker) return res.status(404).json({ message: "Worker not found." });
-
-        console.log(`❌ Worker rejected: ${worker.username}`);
-        res.json({ message: `${worker.username} has been rejected.`, worker });
+        console.log(`✅ Worker approved: ${worker.username} with services: ${worker.services.join(", ")}`);
+        res.json({ message: `${worker.username} has been approved!`, worker });
     } catch (err) {
-        console.error("Reject error:", err);
-        res.status(500).json({ message: "Server error." });
+        console.error("Approve error:", err);
+        res.status(500).json({ message: "Server error.", error: err.message });
     }
 });
-
 // ── DELETE /api/admin/workers/:id ───────────────────────────────────────────
 router.delete("/:id", adminOnly, async (req, res) => {
     try {
