@@ -1,5 +1,6 @@
 // backend/src/routes/adminWorkers.routes.js
 // UPDATED: Uses SERVICES constant and reads services[] array from WorkerForm
+// FIXED: Approve endpoint now works even if WorkerForm doesn't exist
 
 const express = require("express");
 const router = express.Router();
@@ -68,44 +69,73 @@ router.get("/stats", adminOnly, async (req, res) => {
 router.patch("/:id/approve", adminOnly, async (req, res) => {
     try {
         const workerToApprove = await Worker.findById(req.params.id);
-        if (!workerToApprove) return res.status(404).json({ message: "Worker not found." });
+        if (!workerToApprove) {
+            return res.status(404).json({ message: "Worker not found." });
+        }
 
         if (workerToApprove.status === "approved") {
             return res.status(400).json({ message: "Worker is already approved." });
         }
 
-        // Fetch corresponding WorkerForm by email
-        const workerForm = await WorkerForm.findOne({ email: workerToApprove.email });
+        // Try to fetch corresponding WorkerForm by email or phone
+        const workerForm = await WorkerForm.findOne({ 
+            $or: [
+                { email: workerToApprove.email },
+                { phone: workerToApprove.phone }
+            ]
+        });
 
-        if (!workerForm) {
-            return res.status(400).json({ message: "Worker profile (WorkerForm) not found. Cannot approve without services." });
-        }
-
-        // Extract services from the services array (new format)
         let extractedServices = [];
-        if (workerForm.services && Array.isArray(workerForm.services)) {
-            extractedServices = workerForm.services.filter(s => SERVICES.includes(s));
+
+        if (workerForm) {
+            // If WorkerForm exists, extract services from it
+            if (workerForm.services && Array.isArray(workerForm.services)) {
+                extractedServices = workerForm.services.filter(s => SERVICES.includes(s));
+            }
+        } else {
+            console.log(`⚠️ WorkerForm not found for: ${workerToApprove.email || workerToApprove.phone}`);
         }
 
-        if (extractedServices.length === 0) {
-            return res.status(400).json({ message: "Worker has no valid services selected. Cannot approve." });
-        }
-
+        // Approve the worker regardless of WorkerForm existence
         const worker = await Worker.findByIdAndUpdate(
             req.params.id,
             {
                 status: "approved",
                 approvedAt: new Date(),
                 rejectionReason: "",
-                services: extractedServices
+                services: extractedServices.length > 0 ? extractedServices : []
             },
             { new: true }
         ).select("-password");
 
-        console.log(`✅ Worker approved: ${worker.username} with services: ${extractedServices.join(", ")}`);
+        console.log(`✅ Worker approved: ${worker.username} with services: ${worker.services.length > 0 ? worker.services.join(", ") : "none"}`);
         res.json({ message: `${worker.username} has been approved!`, worker });
     } catch (err) {
         console.error("Approve error:", err);
+        res.status(500).json({ message: "Server error.", error: err.message });
+    }
+});
+
+// ── PATCH /api/admin/workers/:id/reject ─────────────────────────────────────
+router.patch("/:id/reject", adminOnly, async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const worker = await Worker.findByIdAndUpdate(
+            req.params.id,
+            {
+                status: "rejected",
+                rejectionReason: reason || "Did not meet requirements.",
+                approvedAt: null,
+            },
+            { new: true }
+        ).select("-password");
+
+        if (!worker) return res.status(404).json({ message: "Worker not found." });
+
+        console.log(`❌ Worker rejected: ${worker.username}`);
+        res.json({ message: `${worker.username} has been rejected.`, worker });
+    } catch (err) {
+        console.error("Reject error:", err);
         res.status(500).json({ message: "Server error." });
     }
 });
